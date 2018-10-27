@@ -1,0 +1,247 @@
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome";
+@import "form-reset.css";
+
+$favColor: #ffc900;
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #740000;
+  --primary-d-5: #5a0000;
+  --primary-d-6: #550000;
+  --primary-d-15: #270000;
+  --primary-l-9: #a20000;
+  --primary-l-10: #a70000;
+  --text-color: white;
+}
+
+html {
+  font-size: 9px;
+}
+
+body {
+  font-family: Arial, Helvetica, Helvetica Neue, serif;
+  position: relative;
+  color: var(--text-color);
+  overflow: hidden;
+  background-color: var(--primary);
+  margin: 0;
+}
+
+h2 {
+  margin: 0;
+  font-size: 2.1rem;
+  color: var(--text-color);
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+#player-wrapper {
+  background: var(--primary-d-15) linear-gradient(45deg, var(--primary-l-10) 15%, var(--primary-d-5)) no-repeat;
+  height: 70px;
+  position: absolute;
+  display: flex;
+  width: 100%;
+  #player {
+    display: inline-flex;
+    height: 100%;
+    width: 88%;
+    position: relative;
+    .btn-pause-play {
+      width: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: var(--text-color);
+      height: 100%;
+      cursor: pointer;
+      background-color: var(--primary);
+    }
+    .song-info {
+      user-select: none;
+      position: relative;
+      flex: 4;
+      padding: 5px;
+      overflow: hidden;
+      h3 {
+        min-height: 15px;
+      }
+      .requested {
+        position: absolute;
+        bottom: 2px;
+      }
+      #events-overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        .drag {
+          -webkit-app-region: drag;
+          width: 50%;
+          height: 100%;
+          cursor: pointer;
+        }
+        .mouse {
+          width: 50%;
+          height: 100%;
+          cursor: default;
+        }
+      }
+      #fav-star {
+        color: var(--text-color);
+        position: absolute;
+        right: 8px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        font-size: 25px;
+        cursor: pointer;
+        z-index: 100;
+        transition: color 0.5s;
+        &.active {
+          color: $favColor;
+          animation: faved 0.5s;
+        }
+      }
+      .loading {
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
+    .player-volume {
+      position: absolute;
+      bottom: 3px;
+      right: 5px;
+      color: var(--text-color);
+      font-size: 13px;
+      user-select: none;
+      cursor: default;
+    }
+  }
+}
+
+.panel {
+  width: 12%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary);
+  align-items: center;
+  .panel-top {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    .fa {
+      font-size: 2.5rem;
+      cursor: pointer;
+    }
+  }
+}
+
+.channel-switch {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  background-color: var(--primary-d-6);
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: 18px;
+  span {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    &.active {
+      background-color: var(--primary-l-9);
+      cursor: default;
+    }
+  }
+}
+
+::-webkit-input-placeholder {
+  color: var(--text-color);
+}
+
+.settings-container {
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  color: white;
+
+  font-size: 30px !important;
+  flex-direction: column;
+  background-color: #333;
+  .history-element {
+    &.active {
+      background-color: red;
+      color: blue;
+    }
+  }
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid var(--text-color);
+  border-radius: 3px;
+}
+
+.checkbox {
+  cursor: pointer;
+  color: var(--text-color);
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--text-color);
+  border-radius: 5px;
+  text-align: center;
+  font-size: 16px;
+}
+
+#marquee {
+  span {
+    color: var(--text-color) !important;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate(0, 0);
+    animation-timing-function: linear;
+  }
+  100% {
+    transform: translate(-100%, 0);
+    animation-timing-function: linear;
+  }
+}
+
+@keyframes faved {
+  0% {
+    color: var(--text-color);
+    text-shadow: none;
+  }
+  50% {
+    transform: scale(1.4, 1.4);
+    color: lighten($favColor, 10%);
+    text-shadow: 0 0 30px opacify(lighten($favColor, 10%), 0.9);
+  }
+  100% {
+    color: $favColor;
+    transform: scale(1, 1);
+    text-shadow: none;
+  }
+}

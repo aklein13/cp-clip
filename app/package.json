@@ -1,0 +1,20 @@
+{
+  "name": "cp-clip",
+  "productName": "cp=clip",
+  "version": "0.1.0",
+  "description": "cp-clip",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "Akane",
+    "email": "arek.klein@gmail.com",
+    "url": "https://github.com/aklein13"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "robotjs": "^0.5.1"
+  }
+}
