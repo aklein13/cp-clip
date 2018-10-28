@@ -188,6 +188,7 @@ h3 {
   top: 0;
   left: 0;
   display: flex;
+  padding: 0 5px;
 
   font-size: 30px !important;
   flex-direction: column;
@@ -201,6 +202,7 @@ h3 {
       color: $select;
       max-height: 300px;
       overflow: hidden;
+      padding: 3px 0;
       &.active {
         background-color: $select;
         color: $mainColor;

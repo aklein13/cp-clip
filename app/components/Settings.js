@@ -2,6 +2,8 @@
 import React, {Component} from 'react';
 import Client from 'electron-rpc/client';
 
+export const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
 type IProps = {};
 
 type IState = {
@@ -27,6 +29,10 @@ export default class Settings extends Component<IProps, IState> {
     });
     this.client.on('up', this.handleUp);
     this.client.on('down', this.handleDown);
+    alphabet.forEach((char) => this.client.on(char, () => this.setState({search: this.state.search + char, activeIndex: 0})));
+    this.client.on('backspace', () => this.setState({search: this.state.search.slice(0, -1), activeIndex: 0}));
+    this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
+    this.client.on('clear_last', () => this.setState({search: this.state.search.split(' ').slice(0, -1).join(' '), activeIndex: 0}));
   }
 
   scrollToIndex = (index) => {
@@ -71,10 +77,14 @@ export default class Settings extends Component<IProps, IState> {
   };
 
   render() {
-    const {history} = this.state;
+    let {history, search} = this.state;
+    if (this.state.search) {
+      history = history.filter((item) => item.toLowerCase().includes(search.toLowerCase()));
+    }
+
     return (
       <div className="history-container">
-        <h3>{this.state.search}</h3>
+        <p>{search}</p>
         {this.renderSearch()}
         <div className="history-list">
           {history.map(this.renderHistoryElement)}

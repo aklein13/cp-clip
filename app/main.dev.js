@@ -27,6 +27,7 @@ const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 
 const clipboardHistory = [];
+const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
 function logger() {
   log.transports.file.level = 'info';
@@ -126,7 +127,13 @@ const openWindow = () => {
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Enter', handleEnter);
   globalShortcut.register('Escape', closeWindow);
+  globalShortcut.register('Backspace', () => server.send('backspace'));
+  globalShortcut.register('Command + Backspace', () => server.send('clear'));
+  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
+  globalShortcut.register('Control + Backspace', () => server.send('clear_last'));
   server.send('clipboard_history', clipboardHistory);
+  alphabet.forEach((char) => globalShortcut.register(char, () => server.send(char)));
+  globalShortcut.unregister('CommandOrControl + Shift + V');
 };
 
 const handleEnter = () => {
@@ -135,7 +142,7 @@ const handleEnter = () => {
 };
 
 const writeFromHistory = (value) => {
-  console.log('write?', value);
+  console.log('write', value);
   clipboard.writeText(value);
   if (isMac) {
     robot.keyTap('v', 'command');
@@ -146,10 +153,8 @@ const writeFromHistory = (value) => {
 };
 
 const closeWindow = () => {
-  globalShortcut.unregister('Up');
-  globalShortcut.unregister('Down');
-  globalShortcut.unregister('Enter');
-  globalShortcut.unregister('Escape');
+  globalShortcut.unregisterAll();
+  globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   clipboardWindow.hide();
 };
 
