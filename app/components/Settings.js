@@ -29,14 +29,18 @@ export default class Settings extends Component<IProps, IState> {
     this.client.on('down', this.handleDown);
   }
 
-  componentDidMount() {
-    document.getElementById('search-input').focus();
-  }
+  scrollToIndex = (index) => {
+    const target = document.getElementById(`h-${index - 1}`);
+    if (target) {
+      target.scrollIntoView(true, {behavior: 'smooth'});
+    }
+  };
 
   handleUp = () => {
     const {activeIndex} = this.state;
     if (activeIndex > 0) {
       this.setState({activeIndex: activeIndex - 1});
+      this.scrollToIndex(activeIndex - 1);
     }
   };
 
@@ -44,6 +48,7 @@ export default class Settings extends Component<IProps, IState> {
     const {activeIndex} = this.state;
     if (activeIndex < this.state.history.length - 1) {
       this.setState({activeIndex: activeIndex + 1});
+      this.scrollToIndex(activeIndex + 1);
     }
   };
 
@@ -52,6 +57,7 @@ export default class Settings extends Component<IProps, IState> {
       <div
         className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
         key={index}
+        id={`h-${index}`}
       >
         {value}
       </div>
@@ -66,12 +72,13 @@ export default class Settings extends Component<IProps, IState> {
 
   render() {
     const {history} = this.state;
-    console.log('state', this.state);
     return (
-      <div className="settings-container">
-        <h3>Pre-alpha very early access ediszyn</h3>
+      <div className="history-container">
+        <h3>{this.state.search}</h3>
         {this.renderSearch()}
-        {history.map(this.renderHistoryElement)}
+        <div className="history-list">
+          {history.map(this.renderHistoryElement)}
+        </div>
       </div>
     );
   }

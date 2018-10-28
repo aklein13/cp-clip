@@ -109,12 +109,14 @@ const closeApp = () => {
 };
 
 const openWindow = () => {
-  console.log(clipboardHistory);
+  // console.log(clipboardHistory);
   if (!isWindows) {
     app.dock.hide();
   }
 
   clipboardWindow.showInactive();
+
+  // clipboardWindow.focus();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating');
   clipboardWindow.setVisibleOnAllWorkspaces(true);
@@ -165,8 +167,8 @@ app.on('ready', async () => {
 
   clipboardWindow = new BrowserWindow({
     show: false,
-    width: 500,
-    height: 400,
+    width: 600,
+    height: 500,
     frame: false,
     resizable: false,
     maximizable: false,
@@ -174,7 +176,7 @@ app.on('ready', async () => {
     title: 'Clipboard',
     center: true,
     alwaysOnTop: true,
-    focusable: false,
+    // focusable: false,
     vibrancy: 'appearance-based',
     visibleOnAllWorkspaces: true,
   });

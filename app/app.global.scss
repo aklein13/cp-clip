@@ -3,10 +3,13 @@ $fa-font-path: "~font-awesome/fonts";
 @import "form-reset.css";
 
 $favColor: #ffc900;
+$mainColor: #333;
+$select: white;
 
 * {
   box-sizing: border-box;
 }
+
 
 :root {
   --primary: #740000;
@@ -27,7 +30,7 @@ body {
   position: relative;
   color: var(--text-color);
   overflow: hidden;
-  background-color: var(--primary);
+  background-color: $mainColor;
   margin: 0;
 }
 
@@ -172,26 +175,36 @@ h3 {
   }
 }
 
+
+
 ::-webkit-input-placeholder {
   color: var(--text-color);
 }
 
-.settings-container {
+.history-container {
   position: absolute;
   height: 100vh;
   width: 100%;
   top: 0;
   left: 0;
   display: flex;
-  color: white;
 
   font-size: 30px !important;
   flex-direction: column;
-  background-color: #333;
-  .history-element {
-    &.active {
-      background-color: red;
-      color: blue;
+  background-color: $mainColor;
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    height: 100%;
+    .history-element {
+      color: $select;
+      max-height: 300px;
+      overflow: hidden;
+      &.active {
+        background-color: $select;
+        color: $mainColor;
+      }
     }
   }
 }
