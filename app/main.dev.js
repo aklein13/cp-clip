@@ -190,8 +190,7 @@ app.on('ready', async () => {
   clipboard
     .on('text-changed', () => {
       clipboardHistory.unshift(clipboard.readText());
-      console.log('UPDATE');
-      console.log(clipboardHistory);
+      // console.log(clipboardHistory);
     })
     .startWatching();
 
