@@ -150,6 +150,7 @@
   },
   "dependencies": {
     "devtron": "^1.4.0",
+    "electron-clipboard-extended": "^1.1.1",
     "electron-config": "^1.0.0",
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.14",
@@ -157,6 +158,7 @@
     "electron-updater": "^2.21.10",
     "font-awesome": "^4.7.0",
     "history": "^4.7.2",
+    "moment": "^2.22.2",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
     "react-hot-loader": "^4.0.0-beta.13",
@@ -166,8 +168,7 @@
     "react-router-redux": "^5.0.0-alpha.6",
     "redux": "^4.0.1",
     "redux-thunk": "^2.2.0",
-    "source-map-support": "^0.5.9",
-    "electron-clipboard-extended": "^1.1.1"
+    "source-map-support": "^0.5.9"
   },
   "devEngines": {
     "node": ">=8.x",

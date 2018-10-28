@@ -29,10 +29,16 @@ export default class Settings extends Component<IProps, IState> {
     });
     this.client.on('up', this.handleUp);
     this.client.on('down', this.handleDown);
-    alphabet.forEach((char) => this.client.on(char, () => this.setState({search: this.state.search + char, activeIndex: 0})));
+    alphabet.forEach((char) => this.client.on(char, () => this.setState({
+      search: this.state.search + char,
+      activeIndex: 0,
+    })));
     this.client.on('backspace', () => this.setState({search: this.state.search.slice(0, -1), activeIndex: 0}));
     this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
-    this.client.on('clear_last', () => this.setState({search: this.state.search.split(' ').slice(0, -1).join(' '), activeIndex: 0}));
+    this.client.on('clear_last', () => this.setState({
+      search: this.state.search.split(' ').slice(0, -1).join(' '),
+      activeIndex: 0,
+    }));
   }
 
   scrollToIndex = (index) => {
@@ -58,14 +64,15 @@ export default class Settings extends Component<IProps, IState> {
     }
   };
 
-  renderHistoryElement = (value, index) => {
+  renderHistoryElement = (item, index) => {
     return (
       <div
         className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
         key={index}
         id={`h-${index}`}
       >
-        {value}
+        {item.value}
+        <span className="date">{item.date}</span>
       </div>
     );
   };
@@ -78,8 +85,10 @@ export default class Settings extends Component<IProps, IState> {
 
   render() {
     let {history, search} = this.state;
-    if (this.state.search) {
-      history = history.filter((item) => item.toLowerCase().includes(search.toLowerCase()));
+    if (search) {
+      console.log(history);
+      console.log(search);
+      history = history.filter((item) => item.value.toLowerCase().includes(search.toLowerCase()));
     }
 
     return (

@@ -10,7 +10,6 @@ $select: white;
   box-sizing: border-box;
 }
 
-
 :root {
   --primary: #740000;
   --primary-d-5: #5a0000;
@@ -175,10 +174,29 @@ h3 {
   }
 }
 
-
-
 ::-webkit-input-placeholder {
   color: var(--text-color);
+}
+
+// Scrollbars
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: rgba(0, 0, 0, 0);
+  -webkit-border-radius: 100px;
+}
+
+::-webkit-scrollbar:hover {
+  background-color: rgba(0, 0, 0, 0.09);
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb:vertical:active {
+  background: rgba(0, 0, 0, 0.61);
+  -webkit-border-radius: 100px;
 }
 
 .history-container {
@@ -196,17 +214,28 @@ h3 {
   .history-list {
     display: flex;
     flex-direction: column;
-    overflow: scroll;
+    overflow-y: scroll;
     height: 100%;
     .history-element {
       color: $select;
       max-height: 300px;
       overflow: hidden;
-      padding: 3px 0;
-      font-size: 14px;
+      padding: 8px 0;
+      font-size: 15px;
+      position: relative;
+      .date {
+        position: absolute;
+        right: 3px;
+        top: 0;
+        color: darken(lighten($select, 0.9), 20%);
+        font-size: 13px;
+      }
       &.active {
         background-color: $select;
         color: $mainColor;
+        .date {
+          color: lighten($mainColor, 20%);
+        }
       }
     }
   }

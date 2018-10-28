@@ -9,6 +9,7 @@ import MenuBuilder from './menu';
 import Server from 'electron-rpc/server';
 import {autoUpdater} from 'electron-updater';
 import path from 'path';
+import moment from 'moment';
 
 const clipboard = require('electron-clipboard-extended');
 const robot = require('robotjs');
@@ -26,7 +27,7 @@ const server = new Server();
 const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 
-const clipboardHistory = [];
+let clipboardHistory = [];
 const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
 function logger() {
@@ -142,7 +143,7 @@ const handleEnter = () => {
 };
 
 const writeFromHistory = (value) => {
-  console.log('write', value);
+  // console.log('write', value);
   clipboard.writeText(value);
   if (isMac) {
     robot.keyTap('v', 'command');
@@ -187,12 +188,24 @@ app.on('ready', async () => {
   });
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
+
+  const previousClipboardHistory = config.get('clipboardHistory');
+  if (previousClipboardHistory && previousClipboardHistory.length && previousClipboardHistory.length > 0) {
+    // Health check
+    const validHistory = previousClipboardHistory.filter((item) => item && item.value && item.date) || [];
+    config.set('clipboardHistory', validHistory);
+    clipboardHistory = validHistory;
+  }
+
   clipboard
     .on('text-changed', () => {
-      clipboardHistory.unshift(clipboard.readText());
+      const now = moment();
+      clipboardHistory.unshift({value: clipboard.readText(), date: now.format('HH:mm MM-DD-YYYY')});
+      config.set('clipboardHistory', clipboardHistory);
       // console.log(clipboardHistory);
     })
     .startWatching();
+
 
   mainWindow = new BrowserWindow(mainWindowConfig);
 
