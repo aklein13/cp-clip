@@ -142,7 +142,7 @@ const handleEnter = () => {
   closeWindow();
 };
 
-const writeFromHistory = (value) => {
+const writeFromHistory = ({value}) => {
   // console.log('write', value);
   clipboard.writeText(value);
   if (isMac) {
@@ -164,7 +164,7 @@ app.on('ready', async () => {
     await installExtensions();
   }
 
-  let mainWindowConfig = {
+  const mainWindowConfig = {
     show: false,
     width: 100,
     height: 100,
