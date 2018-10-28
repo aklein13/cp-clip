@@ -24,6 +24,7 @@ const log = require('electron-log');
 
 const server = new Server();
 const isWindows = process.platform === 'win32';
+const isMac = process.platform === 'darwin';
 
 const clipboardHistory = [];
 
@@ -94,29 +95,10 @@ const connectAutoUpdater = () => {
 };
 
 if (!isDebug) {
-  connectAutoUpdater();
+  // connectAutoUpdater();
 }
 
 app.on('window-all-closed', () => app.quit());
-
-const initSettings = () => {
-  settingsWindow = new BrowserWindow({
-    show: false,
-    width: 500,
-    height: 250,
-    resizable: isDebug,
-    maximizable: isDebug,
-    fullscreenable: isDebug,
-    title: 'Settings',
-  });
-  settingsWindow.loadURL(`file://${__dirname}/app.html#/settings`);
-};
-
-const openSettings = () => {
-  settingsWindow.show();
-  settingsWindow.focus();
-  settingsWindow.on('closed', initSettings);
-};
 
 const closeApp = () => {
   config.set('windowBounds', mainWindow.getBounds());
@@ -128,12 +110,12 @@ const closeApp = () => {
 
 const openWindow = () => {
   console.log(clipboardHistory);
-
-  clipboardWindow.showInactive();
-
   if (!isWindows) {
     app.dock.hide();
   }
+
+  clipboardWindow.showInactive();
+
   clipboardWindow.setAlwaysOnTop(true, 'floating');
   clipboardWindow.setVisibleOnAllWorkspaces(true);
   clipboardWindow.setFullScreenable(false);
@@ -153,7 +135,12 @@ const handleEnter = () => {
 const writeFromHistory = (value) => {
   console.log('write?', value);
   clipboard.writeText(value);
-  robot.keyTap('v', 'control');
+  if (isMac) {
+    robot.keyTap('v', 'command');
+  }
+  else {
+    robot.keyTap('v', 'control');
+  }
 };
 
 const closeWindow = () => {
@@ -173,7 +160,7 @@ app.on('ready', async () => {
     show: false,
     width: 100,
     height: 100,
-    frame: isDebug,
+    frame: false,
   };
 
   clipboardWindow = new BrowserWindow({
@@ -181,14 +168,15 @@ app.on('ready', async () => {
     width: 500,
     height: 400,
     frame: false,
-    resizable: isDebug,
-    maximizable: isDebug,
+    resizable: false,
+    maximizable: false,
     fullscreenable: false,
     title: 'Clipboard',
     center: true,
     alwaysOnTop: true,
     focusable: false,
     vibrancy: 'appearance-based',
+    visibleOnAllWorkspaces: true,
   });
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
@@ -217,10 +205,8 @@ app.on('ready', async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    // mainWindow.show();
-    // mainWindow.focus();
     if (!isDebug) {
-      autoUpdater.checkForUpdates();
+      // autoUpdater.checkForUpdates();
     }
   });
 
@@ -235,5 +221,6 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu(server);
-  initSettings();
+
+  console.log('App is ready!');
 });

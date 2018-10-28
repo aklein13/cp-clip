@@ -69,6 +69,7 @@ export default class Settings extends Component<IProps, IState> {
     console.log('state', this.state);
     return (
       <div className="settings-container">
+        <h3>Pre-alpha very early access ediszyn</h3>
         {this.renderSearch()}
         {history.map(this.renderHistoryElement)}
       </div>
