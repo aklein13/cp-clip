@@ -11,12 +11,8 @@ export const ACTIONS = {
   LOG_OUT: 'log_out',
 };
 
-export const JP_STREAM = 'https://listen.moe/stream';
-export const KR_STREAM = 'https://listen.moe/kpop/stream';
 export const JP_WS = 'wss://listen.moe/gateway';
 export const KR_WS = 'wss://listen.moe/kpop/gateway';
-
-export const CDN = 'https://cdn.listen.moe/covers/';
 
 export const API_URL = 'https://listen.moe/api/';
 
@@ -26,3 +22,5 @@ export const API_HEADERS = {
 };
 
 export const RETRY_TIME = 10000;
+
+export const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];

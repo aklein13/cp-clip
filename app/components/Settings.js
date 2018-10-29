@@ -1,8 +1,7 @@
 // @flow
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import Client from 'electron-rpc/client';
-
-export const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+import {ALPHABET} from '../constants';
 
 type IProps = {};
 
@@ -11,7 +10,7 @@ type IState = {
   search: string,
 };
 
-export default class Settings extends Component<IProps, IState> {
+export default class Settings extends PureComponent<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,15 +20,19 @@ export default class Settings extends Component<IProps, IState> {
     };
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
-      this.setState({history: body, activeIndex: 0});
+      this.setState({history: body, activeIndex: 0, search: ''});
     });
     this.client.on('get_current_value', () => {
       const {activeIndex} = this.state;
-      this.client.request('value_from_history', this.state.history[activeIndex] || '');
+      const filteredHistory = this.getHistory();
+      this.client.request('value_from_history', filteredHistory[activeIndex] || {value: ''});
+      this.setState({activeIndex: 0, search: ''});
     });
-    this.client.on('up', this.handleUp);
-    this.client.on('down', this.handleDown);
-    alphabet.forEach((char) => this.client.on(char, () => this.setState({
+    this.client.on('up', () => this.handleUp(1));
+    this.client.on('up_10', () => this.handleUp(10));
+    this.client.on('down', () => this.handleDown(1));
+    this.client.on('down_10', () => this.handleDown(10));
+    ALPHABET.forEach((char) => this.client.on(char, () => this.setState({
       search: this.state.search + char,
       activeIndex: 0,
     })));
@@ -48,21 +51,31 @@ export default class Settings extends Component<IProps, IState> {
     }
   };
 
-  handleUp = () => {
+  handleUp = (amount: number) => {
     const {activeIndex} = this.state;
     if (activeIndex > 0) {
-      this.setState({activeIndex: activeIndex - 1});
-      this.scrollToIndex(activeIndex - 1);
+      let nextIndex = activeIndex - amount;
+      if (nextIndex < 0) {
+        nextIndex = 0;
+      }
+      this.setState({activeIndex: nextIndex});
+      this.scrollToIndex(nextIndex);
     }
   };
 
-  handleDown = () => {
-    const {activeIndex} = this.state;
-    if (activeIndex < this.state.history.length - 1) {
-      this.setState({activeIndex: activeIndex + 1});
-      this.scrollToIndex(activeIndex + 1);
+  handleDown = (amount: number) => {
+    const {activeIndex, history} = this.state;
+    const maxHistoryIndex = history.length - 1;
+    if (activeIndex < maxHistoryIndex) {
+      let nextIndex = activeIndex + amount;
+      if (nextIndex > maxHistoryIndex) {
+        nextIndex = maxHistoryIndex;
+      }
+      this.setState({activeIndex: nextIndex});
+      this.scrollToIndex(nextIndex);
     }
   };
+
 
   renderHistoryElement = (item, index) => {
     return (
@@ -77,26 +90,22 @@ export default class Settings extends Component<IProps, IState> {
     );
   };
 
-  renderSearch = () => {
-    return (
-      <input id="search-input" onKeyDown={(e) => console.log(e.key)}/>
-    );
+  getHistory = () => {
+    const {history, search} = this.state;
+    let result = [...history];
+    if (search) {
+      result = result.filter((item) => item.value.toLowerCase().includes(search.toLowerCase()));
+    }
+    return result;
   };
 
   render() {
-    let {history, search} = this.state;
-    if (search) {
-      console.log(history);
-      console.log(search);
-      history = history.filter((item) => item.value.toLowerCase().includes(search.toLowerCase()));
-    }
-
+    const filteredHistory = this.getHistory();
     return (
       <div className="history-container">
-        <p>{search}</p>
-        {this.renderSearch()}
+        <p>{this.state.search}</p>
         <div className="history-list">
-          {history.map(this.renderHistoryElement)}
+          {filteredHistory.map(this.renderHistoryElement)}
         </div>
       </div>
     );

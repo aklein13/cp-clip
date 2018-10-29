@@ -28,7 +28,7 @@ const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 
 let clipboardHistory = [];
-const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
 function logger() {
   log.transports.file.level = 'info';
@@ -112,7 +112,7 @@ const closeApp = () => {
 
 const openWindow = () => {
   // console.log(clipboardHistory);
-  if (!isWindows) {
+  if (isMac) {
     app.dock.hide();
   }
 
@@ -123,9 +123,12 @@ const openWindow = () => {
   clipboardWindow.setAlwaysOnTop(true, 'floating');
   clipboardWindow.setVisibleOnAllWorkspaces(true);
   clipboardWindow.setFullScreenable(false);
-  // clipboardWindow.openDevTools();
+  clipboardWindow.openDevTools();
+
   globalShortcut.register('Up', () => server.send('up'));
+  globalShortcut.register('Shift + Up', () => server.send('up_10'));
   globalShortcut.register('Down', () => server.send('down'));
+  globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Enter', handleEnter);
   globalShortcut.register('Escape', closeWindow);
   globalShortcut.register('Backspace', () => server.send('backspace'));
@@ -133,7 +136,7 @@ const openWindow = () => {
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.register('Control + Backspace', () => server.send('clear_last'));
   server.send('clipboard_history', clipboardHistory);
-  alphabet.forEach((char) => globalShortcut.register(char, () => server.send(char)));
+  ALPHABET.forEach((char) => globalShortcut.register(char, () => server.send(char)));
   globalShortcut.unregister('CommandOrControl + Shift + V');
 };
 
@@ -206,28 +209,27 @@ app.on('ready', async () => {
     })
     .startWatching();
 
+  // Debug clipboard history
+  if (isDebug) {
+    const now = moment();
+    const nowString = now.format('HH:mm MM-DD-YYYY');
+    clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
+  }
 
   mainWindow = new BrowserWindow(mainWindowConfig);
 
   server.configure(clipboardWindow.webContents);
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   server.on('value_from_history', (event) => writeFromHistory(event.body));
-  server.on('color_change', (event) => server.send('color_changed', event.body));
-  server.on('logged_out', () => server.send('user_logged_out'));
-  server.on('copy_song_info', (event) => clipboard.writeText(event.body));
   server.on('close_app', closeApp);
 
+  // mainWindow.loadURL(`file://${__dirname}/app.html`);
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (!isDebug) {
-      // autoUpdater.checkForUpdates();
-    }
-  });
+  // mainWindow.webContents.on('did-finish-load', () => {
+  //   if (!isDebug) {
+  // autoUpdater.checkForUpdates();
+  // }
+  // });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -238,8 +240,8 @@ app.on('ready', async () => {
     app.quit();
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu(server);
+  // const menuBuilder = new MenuBuilder(mainWindow);
+  // menuBuilder.buildMenu(server);
 
   console.log('App is ready!');
 });
