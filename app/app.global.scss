@@ -219,6 +219,7 @@ h3 {
     .history-element {
       color: $select;
       max-height: 300px;
+      min-height: 50px;
       overflow: hidden;
       padding: 8px 0;
       font-size: 15px;
