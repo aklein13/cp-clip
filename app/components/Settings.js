@@ -21,6 +21,7 @@ export default class Settings extends PureComponent<IProps, IState> {
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
       this.setState({history: body, activeIndex: 0, search: ''});
+      this.resetScroll();
     });
     this.client.on('get_current_value', () => {
       const {activeIndex} = this.state;
@@ -43,6 +44,13 @@ export default class Settings extends PureComponent<IProps, IState> {
       activeIndex: 0,
     }));
   }
+
+  resetScroll = () => {
+    const target = document.getElementById('history-list');
+    if (target) {
+      target.scrollTop = 0;
+    }
+  };
 
   scrollToIndex = (index) => {
     const target = document.getElementById(`h-${index - 1}`);
@@ -101,10 +109,13 @@ export default class Settings extends PureComponent<IProps, IState> {
 
   render() {
     const filteredHistory = this.getHistory();
+    const {search} = this.state;
     return (
       <div className="history-container">
-        <p>{this.state.search}</p>
-        <div className="history-list">
+        <p className={`search-input ${!search ? 'placeholder' : ''}`}>
+          {search || 'Search...'}
+        </p>
+        <div id="history-list">
           {filteredHistory.map(this.renderHistoryElement)}
         </div>
       </div>

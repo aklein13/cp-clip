@@ -11,16 +11,16 @@ export const ACTIONS = {
   LOG_OUT: 'log_out',
 };
 
-export const JP_WS = 'wss://listen.moe/gateway';
-export const KR_WS = 'wss://listen.moe/kpop/gateway';
+export type IApiAction = {
+  action: string,
+  url: string,
+  startRequest: string,
+  successRequest: string,
+  failureRequest: string,
+}
 
-export const API_URL = 'https://listen.moe/api/';
+export const API_ACTIONS: { [key: string]: IApiAction } = {};
 
-export const API_HEADERS = {
-  'Content-Type': 'application/json',
-  Accept: 'application/vnd.listen.v4+json',
-};
-
-export const RETRY_TIME = 10000;
+export const API_URL = 'http://localhost:8000/';
 
 export const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];

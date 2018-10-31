@@ -3,7 +3,8 @@ $fa-font-path: "~font-awesome/fonts";
 @import "form-reset.css";
 
 $mainColor: #333;
-$select: white;
+$text: white;
+$textLight: #b4b4b4;
 
 * {
   box-sizing: border-box;
@@ -16,7 +17,7 @@ html {
 body {
   font-family: Arial, Helvetica, Helvetica Neue, serif;
   position: relative;
-  color: $select;
+  color: $text;
   overflow: hidden;
   background-color: $mainColor;
   margin: 0;
@@ -63,12 +64,21 @@ h3 {
   font-size: 30px !important;
   flex-direction: column;
   background-color: $mainColor;
-  .history-list {
+  .search-input {
+    border-bottom: 1px solid $textLight;
+    margin-bottom: 3px;
+    font-size: 16px;
+    padding: 0 0 8px 8px;
+    &.placeholder {
+      color: $textLight;
+    }
+  }
+  #history-list {
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
     .history-element {
-      color: $select;
+      color: $text;
       max-height: 300px;
       min-height: 40px;
       overflow: hidden;
@@ -79,11 +89,11 @@ h3 {
         position: absolute;
         right: 3px;
         top: 0;
-        color: darken(lighten($select, 0.9), 20%);
+        color: darken(lighten($text, 0.9), 20%);
         font-size: 13px;
       }
       &.active {
-        background-color: $select;
+        background-color: $text;
         color: $mainColor;
         .date {
           color: lighten($mainColor, 20%);
