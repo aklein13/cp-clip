@@ -4,7 +4,7 @@
  * @flow
  */
 
-import {app, BrowserWindow, dialog, globalShortcut} from 'electron';
+import {app, BrowserWindow, dialog, globalShortcut, screen} from 'electron';
 import MenuBuilder from './menu';
 import Server from 'electron-rpc/server';
 import {autoUpdater} from 'electron-updater';
@@ -29,6 +29,21 @@ const isMac = process.platform === 'darwin';
 
 let clipboardHistory = [];
 const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const clipboardWindowConfig = {
+  show: false,
+  width: 600,
+  height: 500,
+  frame: false,
+  resizable: false,
+  maximizable: false,
+  fullscreenable: false,
+  title: 'Clipboard',
+  center: true,
+  alwaysOnTop: true,
+  // focusable: false,
+  vibrancy: 'appearance-based',
+  visibleOnAllWorkspaces: true,
+};
 
 function logger() {
   log.transports.file.level = 'info';
@@ -112,10 +127,20 @@ const closeApp = () => {
 
 const openWindow = () => {
   // console.log(clipboardHistory);
+  const activeScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
   if (isMac) {
     app.dock.hide();
   }
 
+  const activeScreenBounds = activeScreen.bounds;
+
+  const nextWindowBounds = {
+    x: (activeScreenBounds.x + activeScreenBounds.width) / 2 - clipboardWindowConfig.width / 2,
+    y: (activeScreenBounds.y + activeScreenBounds.height) / 2 - clipboardWindowConfig.height / 2 + 100,
+    width: clipboardWindowConfig.width,
+    height: clipboardWindowConfig.height,
+  };
+  clipboardWindow.setBounds(nextWindowBounds);
   clipboardWindow.showInactive();
 
   // clipboardWindow.focus();
@@ -174,21 +199,7 @@ app.on('ready', async () => {
     frame: false,
   };
 
-  clipboardWindow = new BrowserWindow({
-    show: false,
-    width: 600,
-    height: 500,
-    frame: false,
-    resizable: false,
-    maximizable: false,
-    fullscreenable: false,
-    title: 'Clipboard',
-    center: true,
-    alwaysOnTop: true,
-    // focusable: false,
-    vibrancy: 'appearance-based',
-    visibleOnAllWorkspaces: true,
-  });
+  clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
 
