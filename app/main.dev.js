@@ -31,7 +31,7 @@ let clipboardHistory = [];
 const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 const clipboardWindowConfig = {
   show: false,
-  width: 600,
+  width: 650,
   height: 500,
   frame: false,
   resizable: false,
@@ -135,8 +135,8 @@ const openWindow = () => {
   const activeScreenBounds = activeScreen.bounds;
 
   const nextWindowBounds = {
-    x: (activeScreenBounds.x + activeScreenBounds.width) / 2 - clipboardWindowConfig.width / 2,
-    y: (activeScreenBounds.y + activeScreenBounds.height) / 2 - clipboardWindowConfig.height / 2 + 100,
+    x: activeScreenBounds.x + activeScreenBounds.width / 2 - clipboardWindowConfig.width / 2,
+    y: activeScreenBounds.y + activeScreenBounds.height / 2 - clipboardWindowConfig.height / 2 + 100,
     width: clipboardWindowConfig.width,
     height: clipboardWindowConfig.height,
   };
