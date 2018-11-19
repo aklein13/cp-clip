@@ -5,7 +5,7 @@
  */
 
 import {app, BrowserWindow, dialog, globalShortcut, screen} from 'electron';
-import MenuBuilder from './menu';
+// import MenuBuilder from './menu';
 import Server from 'electron-rpc/server';
 import {autoUpdater} from 'electron-updater';
 import path from 'path';
@@ -29,6 +29,9 @@ const isMac = process.platform === 'darwin';
 
 let clipboardHistory = [];
 const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
+const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 const clipboardWindowConfig = {
   show: false,
   width: 650,
@@ -157,11 +160,18 @@ const openWindow = () => {
   globalShortcut.register('Enter', handleEnter);
   globalShortcut.register('Escape', closeWindow);
   globalShortcut.register('Backspace', () => server.send('backspace'));
-  globalShortcut.register('Command + Backspace', () => server.send('clear'));
+  globalShortcut.register('CommandOrControl + Backspace', () => server.send('clear'));
+  globalShortcut.register('Delete', () => server.send('clear'));
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
-  globalShortcut.register('Control + Backspace', () => server.send('clear_last'));
+  globalShortcut.register('Space', () => server.send('space'));
+  globalShortcut.register('Plus', () => server.send('plus'));
   server.send('clipboard_history', clipboardHistory);
-  ALPHABET.forEach((char) => globalShortcut.register(char, () => server.send(char)));
+  ALPHABET.forEach((char) => {
+    globalShortcut.register(char, () => server.send(char));
+    globalShortcut.register(`Shift + ${char}`, () => server.send(char.toUpperCase()));
+  });
+  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => server.send(char)));
+  NUMBERS.forEach((char) => globalShortcut.register(char, () => server.send(char)));
   globalShortcut.unregister('CommandOrControl + Shift + V');
 };
 

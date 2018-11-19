@@ -1,7 +1,7 @@
 // @flow
 import React, {PureComponent} from 'react';
 import Client from 'electron-rpc/client';
-import {ALPHABET} from '../constants';
+import {ALPHABET, NUMBERS, SPECIAL_CHARS} from '../constants';
 
 type IProps = {};
 
@@ -33,12 +33,33 @@ export default class Settings extends PureComponent<IProps, IState> {
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
-    ALPHABET.forEach((char) => this.client.on(char, () => this.setState({
-      search: this.state.search + char,
-      activeIndex: 0,
-    })));
+    ALPHABET.forEach((char) => {
+      this.client.on(char, () => this.setState({
+        search: this.state.search + char,
+        activeIndex: 0,
+      }));
+      const charUpper = char.toUpperCase();
+      this.client.on(charUpper, () => this.setState({
+        search: this.state.search + charUpper,
+        activeIndex: 0,
+      }));
+    });
+    SPECIAL_CHARS.forEach((char) => {
+      this.client.on(char, () => this.setState({
+        search: this.state.search + char,
+        activeIndex: 0,
+      }));
+    });
+    NUMBERS.forEach((char) => {
+      this.client.on(char, () => this.setState({
+        search: this.state.search + char,
+        activeIndex: 0,
+      }));
+    });
     this.client.on('backspace', () => this.setState({search: this.state.search.slice(0, -1), activeIndex: 0}));
     this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
+    this.client.on('space', () => this.setState({search: this.state.search + ' ', activeIndex: 0}));
+    this.client.on('plus', () => this.setState({search: this.state.search + '+', activeIndex: 0}));
     this.client.on('clear_last', () => this.setState({
       search: this.state.search.split(' ').slice(0, -1).join(' '),
       activeIndex: 0,
