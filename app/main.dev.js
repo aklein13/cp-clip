@@ -146,9 +146,7 @@ const openWindow = () => {
   clipboardWindow.setBounds(nextWindowBounds);
   clipboardWindow.showInactive();
 
-  // clipboardWindow.focus();
-
-  clipboardWindow.setAlwaysOnTop(true, 'floating');
+  clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
   clipboardWindow.setVisibleOnAllWorkspaces(true);
   clipboardWindow.setFullScreenable(false);
   // clipboardWindow.openDevTools();
