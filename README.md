@@ -20,3 +20,4 @@ Unzip file from https://github.com/aklein13/cp-clip/releases/latest
 - Click out to close
 - Some optimization
 - Some styling
+- Icon
