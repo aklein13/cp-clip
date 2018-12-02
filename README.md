@@ -1,8 +1,11 @@
 # cp-clip
 A simple Electron clipboard manager.
 
-# Shortcuts
+![App](./docs/app.jpg)
 
+Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
+
+# Shortcuts
 ###### Type to search
 
 - Control/Command + Shift + V = Open clipboard history window
