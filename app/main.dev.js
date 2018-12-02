@@ -1,11 +1,18 @@
-/* flowtype-errors/show-errors: 0 */
-
 /**
  * @flow
  */
 
-import {app, BrowserWindow, dialog, globalShortcut, screen} from 'electron';
-// import MenuBuilder from './menu';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  globalShortcut,
+  screen,
+  Tray,
+  Menu,
+  shell,
+  nativeImage,
+} from 'electron';
 import Server from 'electron-rpc/server';
 import {autoUpdater} from 'electron-updater';
 import path from 'path';
@@ -20,11 +27,13 @@ const config = new Config();
 let mainWindow = null;
 let settingsWindow = null;
 let clipboardWindow = null;
+let tray = null;
 
 const log = require('electron-log');
+const trayIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
 
 const server = new Server();
-const isWindows = process.platform === 'win32';
+// const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 
 let clipboardHistory = [];
@@ -115,7 +124,7 @@ const connectAutoUpdater = () => {
 };
 
 if (!isDebug) {
-  // connectAutoUpdater();
+  connectAutoUpdater();
 }
 
 app.on('window-all-closed', () => app.quit());
@@ -129,7 +138,6 @@ const closeApp = () => {
 };
 
 const openWindow = () => {
-  // console.log(clipboardHistory);
   const activeScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
   if (isMac) {
     app.dock.hide();
@@ -179,12 +187,10 @@ const handleEnter = () => {
 };
 
 const writeFromHistory = ({value}) => {
-  // console.log('write', value);
   clipboard.writeText(value);
   if (isMac) {
     robot.keyTap('v', 'command');
-  }
-  else {
+  } else {
     robot.keyTap('v', 'control');
   }
 };
@@ -195,17 +201,29 @@ const closeWindow = () => {
   clipboardWindow.hide();
 };
 
+const createTray = () => {
+  tray = new Tray(nativeImage.createFromDataURL(trayIcon));
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'GitHub',
+      role: 'about',
+      click() {
+        shell.openExternal('https://github.com/aklein13/cp-clip/');
+      },
+    },
+    {
+      label: 'Quit',
+      role: 'quit',
+    },
+  ]);
+  tray.setToolTip('cp-clip');
+  tray.setContextMenu(contextMenu);
+};
+
 app.on('ready', async () => {
   if (isDebug) {
     await installExtensions();
   }
-
-  const mainWindowConfig = {
-    show: false,
-    width: 100,
-    height: 100,
-    frame: false,
-  };
 
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
@@ -228,6 +246,8 @@ app.on('ready', async () => {
     })
     .startWatching();
 
+  createTray();
+
   // Debug clipboard history
   if (isDebug) {
     const now = moment();
@@ -235,32 +255,15 @@ app.on('ready', async () => {
     clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
   }
 
-  mainWindow = new BrowserWindow(mainWindowConfig);
 
   server.configure(clipboardWindow.webContents);
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   server.on('value_from_history', (event) => writeFromHistory(event.body));
   server.on('close_app', closeApp);
 
-  // mainWindow.loadURL(`file://${__dirname}/app.html`);
-
-  // mainWindow.webContents.on('did-finish-load', () => {
-  //   if (!isDebug) {
-  // autoUpdater.checkForUpdates();
-  // }
-  // });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-    if (settingsWindow) {
-      settingsWindow.on('closed', () => settingsWindow = null);
-      settingsWindow.close();
-    }
-    app.quit();
-  });
-
-  // const menuBuilder = new MenuBuilder(mainWindow);
-  // menuBuilder.buildMenu(server);
-
   console.log('App is ready!');
+
+  if (!isDebug) {
+    autoUpdater.checkForUpdates();
+  }
 });

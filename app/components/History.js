@@ -10,7 +10,7 @@ type IState = {
   search: string,
 };
 
-export default class Settings extends PureComponent<IProps, IState> {
+export default class History extends PureComponent<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
