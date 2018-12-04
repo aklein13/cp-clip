@@ -163,6 +163,7 @@ const openWindow = () => {
   globalShortcut.register('Shift + Up', () => server.send('up_10'));
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
+  globalShortcut.register('Shift + Enter', () => server.send('enter'));
   globalShortcut.register('Enter', handleEnter);
   globalShortcut.register('Escape', closeWindow);
   globalShortcut.register('Backspace', () => server.send('backspace'));

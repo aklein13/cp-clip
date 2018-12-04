@@ -65,6 +65,7 @@ h3 {
   flex-direction: column;
   background-color: $mainColor;
   .search-input {
+    word-break: break-all;
     border-bottom: 1px solid $textLight;
     margin-bottom: 3px;
     font-size: 16px;

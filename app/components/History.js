@@ -60,6 +60,7 @@ export default class History extends PureComponent<IProps, IState> {
     this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
     this.client.on('space', () => this.setState({search: this.state.search + ' ', activeIndex: 0}));
     this.client.on('plus', () => this.setState({search: this.state.search + '+', activeIndex: 0}));
+    this.client.on('enter', () => this.setState({search: this.state.search + '\n', activeIndex: 0}));
     this.client.on('clear_last', () => this.setState({
       search: this.state.search.split(' ').slice(0, -1).join(' '),
       activeIndex: 0,
