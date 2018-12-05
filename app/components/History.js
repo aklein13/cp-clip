@@ -122,11 +122,11 @@ export default class History extends PureComponent<IProps, IState> {
 
   getHistory = () => {
     const {history, search} = this.state;
-    let result = [...history];
-    if (search) {
-      result = result.filter((item) => item.value.toLowerCase().includes(search.toLowerCase()));
+    if (!search) {
+      return history;
     }
-    return result;
+    const lowerCaseSearch = search.toLowerCase();
+    return history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch));
   };
 
   render() {
