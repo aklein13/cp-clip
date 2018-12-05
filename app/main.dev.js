@@ -37,9 +37,9 @@ const server = new Server();
 const isMac = process.platform === 'darwin';
 
 let clipboardHistory = [];
-const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
-const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+export const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+export const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
+export const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const clipboardWindowConfig = {
   show: false,
@@ -157,7 +157,7 @@ const openWindow = () => {
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
   clipboardWindow.setVisibleOnAllWorkspaces(true);
   clipboardWindow.setFullScreenable(false);
-  // clipboardWindow.openDevTools();
+  clipboardWindow.openDevTools();
 
   globalShortcut.register('Up', () => server.send('up'));
   globalShortcut.register('Shift + Up', () => server.send('up_10'));
@@ -253,7 +253,12 @@ app.on('ready', async () => {
   if (isDebug) {
     const now = moment();
     const nowString = now.format('HH:mm MM-DD-YYYY');
-    clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
+    // TODO REVERT
+    let test = [...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET, ...ALPHABET];
+    test = [...test, ...test, ...test, ...test];
+    console.log(test.length);
+    test = ['BET, ...ALPHABET, ...ALPHABET,...ALPHABET,...ALPHABET,...ALPHABET,..BET, ...ALPHABET, ...ALPHABET,...ALPHABET,...ALPHABET,...ALPHABET,..BET, ...ALPHABET, ...ALPHABET,...ALPHABET,...ALPHABET,...ALPHABET,..BET, ...ALPHABET, ...ALPHABET,...ALPHABET,...ALPHABET,...ALPHABET,..', ...test];
+    clipboardHistory = test.map((value) => ({value, date: nowString}));
   }
 
 

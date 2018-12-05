@@ -75,10 +75,10 @@ h3 {
       color: $textLight;
     }
   }
-  #history-list {
+  .history-list {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    //overflow-y: scroll;
     .history-element {
       color: $text;
       max-height: 300px;

@@ -2,6 +2,7 @@
 import React, {PureComponent} from 'react';
 import Client from 'electron-rpc/client';
 import {ALPHABET, NUMBERS, SPECIAL_CHARS} from '../constants';
+import {List} from 'react-virtualized';
 
 type IProps = {};
 
@@ -18,6 +19,7 @@ export default class History extends PureComponent<IProps, IState> {
       activeIndex: 0,
       search: '',
     };
+    this.list = null;
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
       this.setState({history: body, activeIndex: 0, search: ''});
@@ -68,13 +70,25 @@ export default class History extends PureComponent<IProps, IState> {
   }
 
   resetScroll = () => {
+    this.list.scrollToRow(0)
+    return;
     const target = document.getElementById('history-list');
     if (target) {
       target.scrollTop = 0;
     }
   };
 
+  componentDidUpdate() {
+    if (this.list) {
+      this.list.forceUpdateGrid()
+    }
+  }
+
   scrollToIndex = (index) => {
+    if (this.list) {
+      this.list.scrollToRow(index)
+    }
+    return
     const target = document.getElementById(`h-${index - 1}`);
     if (target) {
       target.scrollIntoView(true, {behavior: 'smooth'});
@@ -120,6 +134,22 @@ export default class History extends PureComponent<IProps, IState> {
     );
   };
 
+  renderHistoryRow = ({key, index, style}) => {
+    console.log(this.state.history);
+    console.log(index);
+    console.log(this.state.history[index]);
+    return (
+      <div
+        className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
+        key={key}
+        style={style}
+      >
+        {this.state.history[index].value}
+        <span className="date">{this.state.history[index].date}</span>
+      </div>
+    );
+  };
+
   getHistory = () => {
     const {history, search} = this.state;
     if (!search) {
@@ -137,9 +167,15 @@ export default class History extends PureComponent<IProps, IState> {
         <p className={`search-input ${!search ? 'placeholder' : ''}`}>
           {search || 'Search...'}
         </p>
-        <div id="history-list">
-          {filteredHistory.map(this.renderHistoryElement)}
-        </div>
+          <List
+            ref={(ref) => this.list = ref}
+            className="history-list"
+            width={650}
+            height={462}
+            rowCount={this.state.history.length}
+            rowHeight={41}
+            rowRenderer={this.renderHistoryRow}
+          />
       </div>
     );
   }
