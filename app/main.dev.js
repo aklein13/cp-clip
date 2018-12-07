@@ -157,7 +157,7 @@ const openWindow = () => {
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
   clipboardWindow.setVisibleOnAllWorkspaces(true);
   clipboardWindow.setFullScreenable(false);
-  clipboardWindow.openDevTools();
+  // clipboardWindow.openDevTools();
 
   globalShortcut.register('Up', () => server.send('up'));
   globalShortcut.register('Shift + Up', () => server.send('up_10'));

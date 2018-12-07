@@ -19,11 +19,10 @@ export default class History extends PureComponent<IProps, IState> {
       activeIndex: 0,
       search: '',
     };
-    this.list = null;
+
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
       this.setState({history: body, activeIndex: 0, search: ''});
-      this.resetScroll();
     });
     this.client.on('get_current_value', () => {
       const {activeIndex} = this.state;
@@ -69,32 +68,6 @@ export default class History extends PureComponent<IProps, IState> {
     }));
   }
 
-  resetScroll = () => {
-    this.list.scrollToRow(0)
-    return;
-    const target = document.getElementById('history-list');
-    if (target) {
-      target.scrollTop = 0;
-    }
-  };
-
-  componentDidUpdate() {
-    if (this.list) {
-      this.list.forceUpdateGrid()
-    }
-  }
-
-  scrollToIndex = (index) => {
-    if (this.list) {
-      this.list.scrollToRow(index)
-    }
-    return
-    const target = document.getElementById(`h-${index - 1}`);
-    if (target) {
-      target.scrollIntoView(true, {behavior: 'smooth'});
-    }
-  };
-
   handleUp = (amount: number) => {
     const {activeIndex} = this.state;
     if (activeIndex > 0) {
@@ -103,7 +76,6 @@ export default class History extends PureComponent<IProps, IState> {
         nextIndex = 0;
       }
       this.setState({activeIndex: nextIndex});
-      this.scrollToIndex(nextIndex);
     }
   };
 
@@ -116,28 +88,10 @@ export default class History extends PureComponent<IProps, IState> {
         nextIndex = maxHistoryIndex;
       }
       this.setState({activeIndex: nextIndex});
-      this.scrollToIndex(nextIndex);
     }
   };
 
-
-  renderHistoryElement = (item, index) => {
-    return (
-      <div
-        className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
-        key={index}
-        id={`h-${index}`}
-      >
-        {item.value}
-        <span className="date">{item.date}</span>
-      </div>
-    );
-  };
-
   renderHistoryRow = ({key, index, style}) => {
-    console.log(this.state.history);
-    console.log(index);
-    console.log(this.state.history[index]);
     return (
       <div
         className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
@@ -167,15 +121,14 @@ export default class History extends PureComponent<IProps, IState> {
         <p className={`search-input ${!search ? 'placeholder' : ''}`}>
           {search || 'Search...'}
         </p>
-          <List
-            ref={(ref) => this.list = ref}
-            className="history-list"
-            width={650}
-            height={462}
-            rowCount={this.state.history.length}
-            rowHeight={41}
-            rowRenderer={this.renderHistoryRow}
-          />
+        <List
+          width={650}
+          height={462}
+          rowCount={this.state.history.length}
+          scrollToIndex={this.state.activeIndex}
+          rowHeight={41}
+          rowRenderer={this.renderHistoryRow}
+        />
       </div>
     );
   }

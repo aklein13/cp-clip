@@ -64,6 +64,7 @@ h3 {
   font-size: 30px !important;
   flex-direction: column;
   background-color: $mainColor;
+
   .search-input {
     word-break: break-all;
     border-bottom: 1px solid $textLight;
@@ -71,35 +72,35 @@ h3 {
     font-size: 16px;
     padding: 0 0 8px 8px;
     min-height: 27px;
+
     &.placeholder {
       color: $textLight;
     }
   }
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    //overflow-y: scroll;
-    .history-element {
-      color: $text;
-      max-height: 300px;
-      min-height: 40px;
-      overflow: hidden;
-      padding: 8px 10px;
-      font-size: 15px;
-      position: relative;
+
+  .history-element {
+    color: $text;
+    max-height: 300px;
+    min-height: 40px;
+    overflow: hidden;
+    padding: 8px 10px;
+    font-size: 15px;
+    position: relative;
+
+    .date {
+      position: absolute;
+      right: 3px;
+      top: 0;
+      color: darken(lighten($text, 0.9), 20%);
+      font-size: 13px;
+    }
+
+    &.active {
+      background-color: $text;
+      color: $mainColor;
+
       .date {
-        position: absolute;
-        right: 3px;
-        top: 0;
-        color: darken(lighten($text, 0.9), 20%);
-        font-size: 13px;
-      }
-      &.active {
-        background-color: $text;
-        color: $mainColor;
-        .date {
-          color: lighten($mainColor, 20%);
-        }
+        color: lighten($mainColor, 20%);
       }
     }
   }
