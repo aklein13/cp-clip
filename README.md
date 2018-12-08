@@ -8,13 +8,14 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 # Shortcuts
 ###### Type to search
 
-- Control/Command + Shift + V = Open clipboard history window
-- Escape = Close history window
-- Enter = Paste selected entry from history
-- Arrow Up/Down = Move 1 entry backwards/forwards
-- Shift + Arrow Up/Down = Move 10 entries backwards/forwards
-- Control/Command + Backspace = Clear search
-- Alt + Backspace = Clear last word in search
+- `Control/Command` + `Shift` + `V` = Open clipboard history window
+- `Escape` = Close history window
+- `Enter` = Paste selected entry from history
+- `Arrow Up/Down` = Move 1 entry backwards/forwards
+- `Shift` + `Arrow Up/Down` = Move 10 entries backwards/forwards
+- `Control/Command` + `Backspace` = Clear search
+- `Alt` + `Backspace` = Clear last word in search
+- `Shift` + `Enter` = Search for Enter press (new lines)
 
 ## Instructions
 ##### [Download](https://github.com/aklein13/cp-clip/releases/latest) latest release for your platform
