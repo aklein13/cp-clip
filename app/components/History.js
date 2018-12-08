@@ -6,8 +6,14 @@ import {List} from 'react-virtualized';
 
 type IProps = {};
 
+type ISearch = {
+  value: string,
+  date: string,
+};
+
 type IState = {
-  login: string[],
+  activeIndex: number,
+  history: ISearch[],
   search: string,
 };
 
@@ -27,9 +33,7 @@ export default class History extends PureComponent<IProps, IState> {
       this.changeSearch();
     });
     this.client.on('get_current_value', () => {
-      const {activeIndex} = this.state;
-      const filteredHistory = this.getHistory();
-      this.client.request('value_from_history', filteredHistory[activeIndex] || {value: ''});
+      this.client.request('value_from_history', this.state.history[this.state.activeIndex] || {value: ''});
       this.changeSearch();
     });
     this.client.on('up', () => this.handleUp(1));
