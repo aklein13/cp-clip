@@ -19,54 +19,55 @@ export default class History extends PureComponent<IProps, IState> {
       activeIndex: 0,
       search: '',
     };
+    this.history = [];
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
-      this.setState({history: body, activeIndex: 0, search: ''});
+      this.history = body;
+      this.changeSearch();
     });
     this.client.on('get_current_value', () => {
       const {activeIndex} = this.state;
       const filteredHistory = this.getHistory();
       this.client.request('value_from_history', filteredHistory[activeIndex] || {value: ''});
-      this.setState({activeIndex: 0, search: ''});
+      this.changeSearch();
     });
     this.client.on('up', () => this.handleUp(1));
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
     ALPHABET.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(
+        this.state.search + char));
       const charUpper = char.toUpperCase();
-      this.client.on(charUpper, () => this.setState({
-        search: this.state.search + charUpper,
-        activeIndex: 0,
-      }));
+      this.client.on(charUpper, () => this.changeSearch(this.state.search + charUpper));
     });
     SPECIAL_CHARS.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(this.state.search + char));
     });
     NUMBERS.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(this.state.search + char));
     });
-    this.client.on('backspace', () => this.setState({search: this.state.search.slice(0, -1), activeIndex: 0}));
-    this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
-    this.client.on('space', () => this.setState({search: this.state.search + ' ', activeIndex: 0}));
-    this.client.on('plus', () => this.setState({search: this.state.search + '+', activeIndex: 0}));
-    this.client.on('enter', () => this.setState({search: this.state.search + '\n', activeIndex: 0}));
-    this.client.on('clear_last', () => this.setState({
-      search: this.state.search.split(' ').slice(0, -1).join(' '),
-      activeIndex: 0,
-    }));
+    this.client.on('backspace', () => this.changeSearch(this.state.search.slice(0, -1)));
+    this.client.on('clear', () => this.changeSearch());
+    this.client.on('space', () => this.changeSearch(this.state.search + ' '));
+    this.client.on('plus', () => this.changeSearch(this.state.search + '+'));
+    this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
+    this.client.on('clear_last', () => this.changeSearch(this.state.search.split(' ').slice(0, -1).join(' ')));
   }
+
+  changeSearch = (newSearch: string = '') => {
+    this.setState({search: newSearch, activeIndex: 0});
+    this.filterHistory(newSearch);
+  };
+
+  filterHistory = (search: string = '') => {
+    if (!search) {
+      return this.setState({history: this.history});
+    }
+    const lowerCaseSearch = search.toLowerCase();
+    this.setState({history: this.history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch))});
+  };
 
   handleUp = (amount: number) => {
     const {activeIndex} = this.state;
@@ -104,17 +105,7 @@ export default class History extends PureComponent<IProps, IState> {
     );
   };
 
-  getHistory = () => {
-    const {history, search} = this.state;
-    if (!search) {
-      return history;
-    }
-    const lowerCaseSearch = search.toLowerCase();
-    return history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch));
-  };
-
   render() {
-    const filteredHistory = this.getHistory();
     const {search} = this.state;
     return (
       <div className="history-container">
