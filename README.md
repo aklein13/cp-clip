@@ -52,8 +52,6 @@ npm run package-all
 ```
 
 # TODO
-- Fix index management for searched results
 - Click out to close?
-- Some optimization
 - Some styling
 - Scroll issues

@@ -243,7 +243,6 @@ app.on('ready', async () => {
       const now = moment();
       clipboardHistory.unshift({value: clipboard.readText(), date: now.format('HH:mm MM-DD-YYYY')});
       config.set('clipboardHistory', clipboardHistory);
-      // console.log(clipboardHistory);
     })
     .startWatching();
 

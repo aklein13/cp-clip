@@ -2,11 +2,18 @@
 import React, {PureComponent} from 'react';
 import Client from 'electron-rpc/client';
 import {ALPHABET, NUMBERS, SPECIAL_CHARS} from '../constants';
+import {List} from 'react-virtualized';
 
 type IProps = {};
 
+type ISearch = {
+  value: string,
+  date: string,
+};
+
 type IState = {
-  login: string[],
+  activeIndex: number,
+  history: ISearch[],
   search: string,
 };
 
@@ -18,67 +25,52 @@ export default class History extends PureComponent<IProps, IState> {
       activeIndex: 0,
       search: '',
     };
+    this.history = [];
+
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
-      this.setState({history: body, activeIndex: 0, search: ''});
-      this.resetScroll();
+      this.history = body;
+      this.changeSearch();
     });
     this.client.on('get_current_value', () => {
-      const {activeIndex} = this.state;
-      const filteredHistory = this.getHistory();
-      this.client.request('value_from_history', filteredHistory[activeIndex] || {value: ''});
-      this.setState({activeIndex: 0, search: ''});
+      this.client.request('value_from_history', this.state.history[this.state.activeIndex] || {value: ''});
+      this.changeSearch();
     });
     this.client.on('up', () => this.handleUp(1));
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
     ALPHABET.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(
+        this.state.search + char));
       const charUpper = char.toUpperCase();
-      this.client.on(charUpper, () => this.setState({
-        search: this.state.search + charUpper,
-        activeIndex: 0,
-      }));
+      this.client.on(charUpper, () => this.changeSearch(this.state.search + charUpper));
     });
     SPECIAL_CHARS.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(this.state.search + char));
     });
     NUMBERS.forEach((char) => {
-      this.client.on(char, () => this.setState({
-        search: this.state.search + char,
-        activeIndex: 0,
-      }));
+      this.client.on(char, () => this.changeSearch(this.state.search + char));
     });
-    this.client.on('backspace', () => this.setState({search: this.state.search.slice(0, -1), activeIndex: 0}));
-    this.client.on('clear', () => this.setState({search: '', activeIndex: 0}));
-    this.client.on('space', () => this.setState({search: this.state.search + ' ', activeIndex: 0}));
-    this.client.on('plus', () => this.setState({search: this.state.search + '+', activeIndex: 0}));
-    this.client.on('enter', () => this.setState({search: this.state.search + '\n', activeIndex: 0}));
-    this.client.on('clear_last', () => this.setState({
-      search: this.state.search.split(' ').slice(0, -1).join(' '),
-      activeIndex: 0,
-    }));
+    this.client.on('backspace', () => this.changeSearch(this.state.search.slice(0, -1)));
+    this.client.on('clear', () => this.changeSearch());
+    this.client.on('space', () => this.changeSearch(this.state.search + ' '));
+    this.client.on('plus', () => this.changeSearch(this.state.search + '+'));
+    this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
+    this.client.on('clear_last', () => this.changeSearch(this.state.search.split(' ').slice(0, -1).join(' ')));
   }
 
-  resetScroll = () => {
-    const target = document.getElementById('history-list');
-    if (target) {
-      target.scrollTop = 0;
-    }
+  changeSearch = (newSearch: string = '') => {
+    this.setState({search: newSearch, activeIndex: 0});
+    this.filterHistory(newSearch);
   };
 
-  scrollToIndex = (index) => {
-    const target = document.getElementById(`h-${index - 1}`);
-    if (target) {
-      target.scrollIntoView(true, {behavior: 'smooth'});
+  filterHistory = (search: string = '') => {
+    if (!search) {
+      return this.setState({history: this.history});
     }
+    const lowerCaseSearch = search.toLowerCase();
+    this.setState({history: this.history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch))});
   };
 
   handleUp = (amount: number) => {
@@ -89,7 +81,6 @@ export default class History extends PureComponent<IProps, IState> {
         nextIndex = 0;
       }
       this.setState({activeIndex: nextIndex});
-      this.scrollToIndex(nextIndex);
     }
   };
 
@@ -102,44 +93,37 @@ export default class History extends PureComponent<IProps, IState> {
         nextIndex = maxHistoryIndex;
       }
       this.setState({activeIndex: nextIndex});
-      this.scrollToIndex(nextIndex);
     }
   };
 
-
-  renderHistoryElement = (item, index) => {
+  renderHistoryRow = ({key, index, style}) => {
     return (
       <div
         className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
-        key={index}
-        id={`h-${index}`}
+        key={key}
+        style={style}
       >
-        {item.value}
-        <span className="date">{item.date}</span>
+        {this.state.history[index].value}
+        <span className="date">{this.state.history[index].date}</span>
       </div>
     );
   };
 
-  getHistory = () => {
-    const {history, search} = this.state;
-    if (!search) {
-      return history;
-    }
-    const lowerCaseSearch = search.toLowerCase();
-    return history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch));
-  };
-
   render() {
-    const filteredHistory = this.getHistory();
     const {search} = this.state;
     return (
       <div className="history-container">
         <p className={`search-input ${!search ? 'placeholder' : ''}`}>
           {search || 'Search...'}
         </p>
-        <div id="history-list">
-          {filteredHistory.map(this.renderHistoryElement)}
-        </div>
+        <List
+          width={650}
+          height={462}
+          rowCount={this.state.history.length}
+          scrollToIndex={this.state.activeIndex}
+          rowHeight={41}
+          rowRenderer={this.renderHistoryRow}
+        />
       </div>
     );
   }
