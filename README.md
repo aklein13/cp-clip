@@ -55,4 +55,5 @@ npm run package-all
 # TODO
 - Click out to close?
 - Some styling
-- Scroll issues
+- Periodical/manual check for updates (right not it's on app start)
+- `No updates found` message
