@@ -35,11 +35,14 @@ const trayIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf
 const server = new Server();
 // const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
+const isLinux = process.platform === 'linux';
 
 let clipboardHistory = [];
 const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
 const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+let openAtLogin = false;
 
 const clipboardWindowConfig = {
   show: false,
@@ -204,7 +207,7 @@ const closeWindow = () => {
 
 const createTray = () => {
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
-  const contextMenu = Menu.buildFromTemplate([
+  const menuTemplate = [
     {
       label: 'GitHub',
       role: 'about',
@@ -216,7 +219,20 @@ const createTray = () => {
       label: 'Quit',
       role: 'quit',
     },
-  ]);
+  ];
+  if (!isLinux) {
+    openAtLogin = app.getLoginItemSettings().openAtLogin;
+    menuTemplate.unshift({
+      label: 'Autostart',
+      type: 'checkbox',
+      checked: openAtLogin,
+      click() {
+        openAtLogin = !openAtLogin;
+        app.setLoginItemSettings({...app.getLoginItemSettings(), openAtLogin});
+      },
+    });
+  }
+  const contextMenu = Menu.buildFromTemplate(menuTemplate);
   tray.setToolTip('cp-clip');
   tray.setContextMenu(contextMenu);
 };
