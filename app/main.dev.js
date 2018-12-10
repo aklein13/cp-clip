@@ -42,7 +42,11 @@ const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm
 const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
 const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+const UPDATE_INTERVAL = 3 * 3600 * 1000;
+
 let openAtLogin = false;
+let updateAvailable = false;
+let updateInterval = null;
 
 const clipboardWindowConfig = {
   show: false,
@@ -99,11 +103,14 @@ const connectAutoUpdater = () => {
   autoUpdater.logger = log;
   autoUpdater.on('error', e => log.error(`update error ${e.message}`));
   autoUpdater.on('update-available', () => {
+    updateAvailable = true;
     log.info('Update is available');
     autoUpdater.downloadUpdate();
   });
-  autoUpdater.on('checking-for-update', () => log.info('checking-for-update'));
-  autoUpdater.on('update-not-available', () => log.info('update-not-available'));
+  autoUpdater.on('update-not-available', () => {
+    updateAvailable = false;
+    log.info('update-not-available')
+  });
   autoUpdater.on('download-progress', progressObj => {
     let msg = `Download speed: ${progressObj.bytesPerSecond}`;
     msg = `${msg} - Downloaded ${progressObj.percent}%`;
@@ -116,7 +123,7 @@ const connectAutoUpdater = () => {
       type: 'info',
       buttons: ['Restart', 'Later'],
       title: 'Application Update',
-      detail: 'A new version has been downloaded. Restart the application to apply the updates.',
+      detail: 'A new version has been downloaded.\nRestart the application to apply the updates.',
     };
     dialog.showMessageBox(dialogOpts, (response) => {
       if (response === 0) {
@@ -207,13 +214,33 @@ const closeWindow = () => {
 
 const createTray = () => {
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
-  const menuTemplate = [
+  let menuTemplate = [
+    {
+      label: 'Check updates',
+      async click() {
+        clearInterval(updateInterval);
+        const result = await autoUpdater.checkForUpdates();
+        updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
+        if (!updateAvailable) {
+          const versionNumber = result && result.versionInfo ? result.versionInfo.version : '';
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: ['Close'],
+            title: 'No update',
+            detail: `No update available.\nYou are running the latest version: ${versionNumber}.`,
+          });
+        }
+      },
+    },
     {
       label: 'GitHub',
       role: 'about',
       click() {
         shell.openExternal('https://github.com/aklein13/cp-clip/');
       },
+    },
+    {
+      type: 'separator',
     },
     {
       label: 'Quit',
@@ -223,14 +250,18 @@ const createTray = () => {
   if (!isLinux) {
     openAtLogin = app.getLoginItemSettings().openAtLogin;
     menuTemplate.unshift({
-      label: 'Autostart',
-      type: 'checkbox',
-      checked: openAtLogin,
-      click() {
-        openAtLogin = !openAtLogin;
-        app.setLoginItemSettings({...app.getLoginItemSettings(), openAtLogin});
+        label: 'Autostart',
+        type: 'checkbox',
+        checked: openAtLogin,
+        click() {
+          openAtLogin = !openAtLogin;
+          app.setLoginItemSettings({...app.getLoginItemSettings(), openAtLogin});
+        },
       },
-    });
+      {
+        type: 'separator',
+      },
+    );
   }
   const contextMenu = Menu.buildFromTemplate(menuTemplate);
   tray.setToolTip('cp-clip');
@@ -280,6 +311,7 @@ app.on('ready', async () => {
   console.log('App is ready!');
 
   if (!isDebug) {
-    autoUpdater.checkForUpdates();
+    await autoUpdater.checkForUpdates();
+    updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
   }
 });

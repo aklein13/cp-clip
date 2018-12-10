@@ -36,24 +36,24 @@ Or you can just `chmod +x` it.
 ## Dev Instruction:
 ##### After downloading repository run [Yarn](https://yarnpkg.com/)
 ```bash
-$ yarn
+yarn
+cd app
+yarn
 ```
 ##### Then you can use one of the following commands:
 - Run in dev environment
 ```bash
-npm run dev
+yarn dev
 ```
 - Package release for your current platform
 ```bash
-npm run package
+yarn package
 ```
 - Package release for Windows, Mac and Linux
 ```bash
-npm run package-all
+yarn package-all
 ```
 
 # TODO
 - Click out to close?
 - Some styling
-- Periodical/manual check for updates (right not it's on app start)
-- `No updates found` message
