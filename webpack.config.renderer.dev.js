@@ -1,5 +1,3 @@
-/* eslint global-require: 0, import/no-dynamic-require: 0 */
-
 /**
  * Build config for development electron renderer process that uses
  * Hot-Module-Replacement
