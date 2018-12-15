@@ -109,7 +109,7 @@ const connectAutoUpdater = () => {
   });
   autoUpdater.on('update-not-available', () => {
     updateAvailable = false;
-    log.info('update-not-available')
+    log.info('update-not-available');
   });
   autoUpdater.on('download-progress', progressObj => {
     let msg = `Download speed: ${progressObj.bytesPerSecond}`;
@@ -219,15 +219,15 @@ const createTray = () => {
       label: 'Check updates',
       async click() {
         clearInterval(updateInterval);
-        const result = await autoUpdater.checkForUpdates();
+        // const result = await autoUpdater.checkForUpdates();
         updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
         if (!updateAvailable) {
-          const versionNumber = result && result.versionInfo ? result.versionInfo.version : '';
+          // const versionNumber = result && result.versionInfo ? result.versionInfo.version : '';
           dialog.showMessageBox({
             type: 'info',
             buttons: ['Close'],
-            title: 'No update',
-            detail: `No update available.\nYou are running the latest version: ${versionNumber}.`,
+            title: 'cp-clip',
+            detail: `There are currently no updates available.`,
           });
         }
       },
