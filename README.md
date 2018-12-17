@@ -35,13 +35,13 @@ Or you can just `chmod +x` it.
 
 ## Dev Instruction:
 ##### After downloading repository run [Yarn](https://yarnpkg.com/)
+You need to install `node_modules` in both root directory and `./app` directory.
 ```bash
 yarn
-cd app
-yarn
+cd app && yarn && cd ..
 ```
 ##### Then you can use one of the following commands:
-- Run in dev environment
+- Run in dev environment (from root directory)
 ```bash
 yarn dev
 ```
