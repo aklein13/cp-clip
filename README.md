@@ -16,6 +16,7 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 - `Control/Command` + `Backspace` = Clear search
 - `Alt` + `Backspace` = Clear last word in search
 - `Shift` + `Enter` = Search for Enter press (new lines)
+- `Control/Command` + `G` = Search selected (or last in clipboard) phrase in Google.
 
 ## Instructions
 ##### [Download](https://github.com/aklein13/cp-clip/releases/latest) latest release for your platform
@@ -55,5 +56,6 @@ yarn package-all
 ```
 
 # TODO
+- Click to paste
 - Click out to close?
 - Some styling
