@@ -263,10 +263,9 @@ const createTray = () => {
       label: 'Check updates',
       async click() {
         clearInterval(updateInterval);
-        // const result = await autoUpdater.checkForUpdates();
+        await autoUpdater.checkForUpdates();
         updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
         if (!updateAvailable) {
-          // const versionNumber = result && result.versionInfo ? result.versionInfo.version : '';
           dialog.showMessageBox({
             type: 'info',
             buttons: ['Close'],
