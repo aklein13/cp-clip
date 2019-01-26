@@ -27,6 +27,8 @@ const config = new Config();
 let clipboardWindow = null;
 let tray = null;
 let googleTimeout = null;
+let googleInterval = null;
+let googlePreviousValue = null;
 
 const log = require('electron-log');
 const trayIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
@@ -40,6 +42,7 @@ let clipboardHistory = [];
 const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
 const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
 
@@ -212,22 +215,45 @@ const closeWindow = () => {
   registerInitShortcuts();
 };
 
+const searchLastInGoogle = () => shell.openExternal(`https://www.google.com/search?q=${clipboardHistory[0].value}`);
+
 const searchInGoogle = () => {
-  if (googleTimeout) {
+  if (googleTimeout || googleInterval) {
     return;
   }
+
+  // Interval to check if value in clipboard has changed.
+  googlePreviousValue = clipboardHistory.length ? clipboardHistory[0].value : '';
+  googleInterval = setInterval(() => {
+    if (clipboardHistory.length && googlePreviousValue !== clipboardHistory[0].value) {
+      clearTimeout(googleTimeout);
+      clearInterval(googleInterval);
+      searchLastInGoogle();
+      closeWindow();
+      googleTimeout = null;
+      googleInterval = null;
+    }
+  }, 50);
+
+  // Copy to clipboard.
+  // Clipboard watcher checks the value every 500ms.
   if (isMac) {
     robot.keyTap('c', 'command');
   } else {
     robot.keyTap('c', 'control');
   }
-  if (clipboardHistory.length) {
-    googleTimeout = setTimeout(() => {
-      shell.openExternal(`https://www.google.com/search?q=${clipboardHistory[0].value}`);
-      googleTimeout = null;
-      closeWindow();
-    }, 550);
-  }
+
+  // Fallback if value in clipboard didn't change. Uses last element from clipboard.
+  // Also removes googleInterval watcher.
+  googleTimeout = setTimeout(() => {
+    clearInterval(googleInterval);
+    if (clipboardHistory.length) {
+      searchLastInGoogle();
+    }
+    closeWindow();
+    googleTimeout = null;
+    googleInterval = null;
+  }, 550);
 };
 
 const createTray = () => {
@@ -306,7 +332,7 @@ app.on('ready', async () => {
   clipboard
     .on('text-changed', () => {
       const now = moment();
-      clipboardHistory.unshift({value: clipboard.readText(), date: now.format('HH:mm MM-DD-YYYY')});
+      clipboardHistory.unshift({value: clipboard.readText(), date: now.format(DATE_FORMAT)});
       config.set('clipboardHistory', clipboardHistory);
     })
     .startWatching();
@@ -316,10 +342,9 @@ app.on('ready', async () => {
   // Debug clipboard history
   if (isDebug) {
     const now = moment();
-    const nowString = now.format('HH:mm MM-DD-YYYY');
+    const nowString = now.format(DATE_FORMAT);
     clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
   }
-
 
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();

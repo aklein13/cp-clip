@@ -1,7 +1,7 @@
 {
   "name": "cp-clip",
   "productName": "cp-clip",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "cp-clip",
   "main": "./main.prod.js",
   "author": {
