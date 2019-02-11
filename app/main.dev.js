@@ -221,7 +221,7 @@ const superPaste = () => {
 const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
-  globalShortcut.register('CommandOrControl + Alt + V', superPaste);
+  // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
 };
 
 const closeWindow = () => {
