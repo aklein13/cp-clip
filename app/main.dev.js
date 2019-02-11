@@ -204,9 +204,24 @@ const writeFromHistory = ({value}) => {
   }
 };
 
+const superPaste = () => {
+  if (!clipboardHistory.length) {
+    return;
+  }
+  robot.keyToggle('alt', 'up');
+  if (isMac) {
+    robot.keyToggle('command', 'up');
+  }
+  else {
+    robot.keyToggle('control', 'up');
+  }
+  robot.typeString(clipboardHistory[0].value);
+};
+
 const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
+  globalShortcut.register('CommandOrControl + Alt + V', superPaste);
 };
 
 const closeWindow = () => {
