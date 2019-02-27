@@ -23,16 +23,6 @@ body {
   margin: 0;
 }
 
-h2 {
-  margin: 0;
-  font-size: 2.1rem;
-}
-
-h3 {
-  margin: 0;
-  font-size: 1.5em;
-}
-
 // Scrollbars
 ::-webkit-scrollbar {
   width: 8px;
@@ -68,11 +58,11 @@ h3 {
   .search-input {
     word-break: break-all;
     border-bottom: 1px solid $textLight;
-    margin-bottom: 3px;
     font-size: 16px;
-    padding: 0 0 8px 8px;
-    min-height: 27px;
+    padding: 0 3px 8px 8px;
+    min-height: 23px;
     user-select: none;
+    margin: 13px 0 0;
 
     &.placeholder {
       color: $textLight;
@@ -82,9 +72,9 @@ h3 {
   .history-element {
     color: $text;
     max-height: 300px;
-    min-height: 40px;
+    min-height: 44px;
     overflow: hidden;
-    padding: 8px 10px;
+    padding: 11px 8px 7px;
     font-size: 15px;
     position: relative;
     user-select: none;

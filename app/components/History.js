@@ -117,11 +117,11 @@ export default class History extends PureComponent<IProps, IState> {
           {search || 'Search...'}
         </p>
         <List
-          width={650}
-          height={462}
+          width={670}
+          height={510}
           rowCount={this.state.history.length}
           scrollToIndex={this.state.activeIndex}
-          rowHeight={41}
+          rowHeight={44}
           rowRenderer={this.renderHistoryRow}
         />
       </div>
