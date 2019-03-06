@@ -1,7 +1,6 @@
 // @flow
 import React, {PureComponent} from 'react';
 import Client from 'electron-rpc/client';
-import {ALPHABET, NUMBERS, SPECIAL_CHARS} from '../constants';
 import {List} from 'react-virtualized';
 
 type IProps = {};
@@ -40,24 +39,22 @@ export default class History extends PureComponent<IProps, IState> {
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
-    ALPHABET.forEach((char) => {
-      this.client.on(char, () => this.changeSearch(
-        this.state.search + char));
-      const charUpper = char.toUpperCase();
-      this.client.on(charUpper, () => this.changeSearch(this.state.search + charUpper));
-    });
-    SPECIAL_CHARS.forEach((char) => {
-      this.client.on(char, () => this.changeSearch(this.state.search + char));
-    });
-    NUMBERS.forEach((char) => {
-      this.client.on(char, () => this.changeSearch(this.state.search + char));
-    });
+    this.client.on('write_input', (_error, char) => this.changeSearch(this.state.search + char));
     this.client.on('backspace', () => this.changeSearch(this.state.search.slice(0, -1)));
     this.client.on('clear', () => this.changeSearch());
     this.client.on('space', () => this.changeSearch(this.state.search + ' '));
     this.client.on('plus', () => this.changeSearch(this.state.search + '+'));
     this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
     this.client.on('clear_last', () => this.changeSearch(this.state.search.split(' ').slice(0, -1).join(' ')));
+    this.client.on('paste_nth', (_error, body) => {
+      const position = parseInt(body) || 1;
+      const valueFromHistory = this.state.history[position - 1];
+      if (!valueFromHistory) {
+        return;
+      }
+      this.client.request('value_from_history', valueFromHistory);
+      this.changeSearch();
+    });
   }
 
   changeSearch = (newSearch: string = '') => {
@@ -105,6 +102,7 @@ export default class History extends PureComponent<IProps, IState> {
       >
         {this.state.history[index].value}
         <span className="date">{this.state.history[index].date}</span>
+        {index < 9 && <p className="order">{index + 1}</p>}
       </div>
     );
   };

@@ -8,9 +8,10 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 # Shortcuts
 ###### Type to search
 
-- `Control/Command` + `Shift` + `V` = Open clipboard history window
+- `Control/Command` + `Shift` + `V` = Open/close clipboard history window
 - `Escape` = Close history window
 - `Enter` = Paste selected entry from history
+- `Control/Command` + [`1` - `9`] = Paste 1st - 9th element from history
 - `Arrow Up/Down` = Move 1 entry backwards/forwards
 - `Shift` + `Arrow Up/Down` = Move 10 entries backwards/forwards
 - `Control/Command` + `Backspace` = Clear search

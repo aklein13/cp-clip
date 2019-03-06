@@ -175,7 +175,7 @@ const openWindow = () => {
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
-  globalShortcut.register('Enter', handleEnter);
+  globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', closeWindow);
   globalShortcut.register('Backspace', () => server.send('backspace'));
   globalShortcut.register('CommandOrControl + Backspace', () => server.send('clear'));
@@ -185,20 +185,22 @@ const openWindow = () => {
   globalShortcut.register('Plus', () => server.send('plus'));
   server.send('clipboard_history', clipboardHistory);
   ALPHABET.forEach((char) => {
-    globalShortcut.register(char, () => server.send(char));
-    globalShortcut.register(`Shift + ${char}`, () => server.send(char.toUpperCase()));
+    globalShortcut.register(char, () => server.send('write_input', char));
+    globalShortcut.register(`Shift + ${char}`, () => server.send('write_input', char.toUpperCase()));
   });
-  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => server.send(char)));
-  NUMBERS.forEach((char) => globalShortcut.register(char, () => server.send(char)));
+  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => server.send('write_input', char)));
+  NUMBERS.forEach((char) => {
+    globalShortcut.register(char, () => server.send('write_input', char));
+    if (char !== '0') {
+      globalShortcut.register(`CommandOrControl + ${char}`, () => server.send('paste_nth', char));
+    }
+  });
   globalShortcut.unregister('CommandOrControl + Shift + V');
-};
-
-const handleEnter = () => {
-  server.send('get_current_value');
-  closeWindow();
+  globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
 };
 
 const writeFromHistory = ({value}) => {
+  closeWindow();
   clipboard.writeText(value);
   if (isMac) {
     robot.keyTap('v', 'command');
@@ -229,7 +231,7 @@ const registerInitShortcuts = () => {
 const closeWindow = () => {
   globalShortcut.unregisterAll();
   clipboardWindow.hide();
-  registerInitShortcuts();
+  setTimeout(registerInitShortcuts, 0);
 };
 
 const searchLastInGoogle = () => shell.openExternal(`https://www.google.com/search?q=${clipboardHistory[0].value}`);

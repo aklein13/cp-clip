@@ -1,5 +1,5 @@
-$fa-font-path: "~font-awesome/fonts";
-@import "~font-awesome/scss/font-awesome";
+//$fa-font-path: "~font-awesome/fonts";
+//@import "~font-awesome/scss/font-awesome";
 //@import "form-reset.css";
 
 $mainColor: #333;
@@ -79,6 +79,7 @@ body {
     position: relative;
     user-select: none;
     cursor: default;
+    display: flex;
 
     .date {
       position: absolute;
@@ -88,12 +89,30 @@ body {
       font-size: 13px;
     }
 
+    .order {
+      color: $mainColor;
+      background-color: darken($text, 35%);
+      display: inline-block;
+      margin: 7px -3px auto auto;
+      float: right;
+      width: 20px;
+      min-width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+    }
+
     &.active {
       background-color: $text;
       color: $mainColor;
 
       .date {
         color: lighten($mainColor, 20%);
+      }
+
+      .order {
+        color: $text;
+        background-color: lighten($mainColor, 20%);
       }
     }
   }
