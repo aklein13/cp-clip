@@ -74,12 +74,12 @@ body {
     max-height: 300px;
     min-height: 44px;
     overflow: hidden;
-    padding: 11px 8px 7px;
+    padding: 11px 25px 7px;
     font-size: 15px;
     position: relative;
     user-select: none;
     cursor: default;
-    display: flex;
+    word-break: break-all;
 
     .date {
       position: absolute;
@@ -92,11 +92,10 @@ body {
     .order {
       color: $mainColor;
       background-color: darken($text, 35%);
-      display: inline-block;
-      margin: 7px -3px auto auto;
-      float: right;
+      position: absolute;
+      right: 3px;
+      top: 3.5px;
       width: 20px;
-      min-width: 20px;
       height: 20px;
       line-height: 20px;
       text-align: center;
