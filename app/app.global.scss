@@ -44,7 +44,7 @@ body {
   -webkit-border-radius: 100px;
 }
 
-.history-container {
+#history-container, #settings-container {
   position: absolute;
   height: 100vh;
   width: 100%;
@@ -54,6 +54,9 @@ body {
   font-size: 30px !important;
   flex-direction: column;
   background-color: $mainColor;
+}
+
+#history-container {
 
   .search-input {
     word-break: break-all;

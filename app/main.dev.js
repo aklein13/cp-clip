@@ -25,6 +25,7 @@ const Config = require('electron-config');
 const config = new Config();
 
 let clipboardWindow = null;
+let settingsWindow = null;
 let tray = null;
 let googleTimeout = null;
 let googleInterval = null;
@@ -67,6 +68,27 @@ const clipboardWindowConfig = {
   // focusable: false,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
+};
+
+const shortcuts = {
+  modifiers: {
+    ctrlCmd: 'CommandOrControl',
+    shift: 'Shift',
+    alt: 'Alt',
+  },
+  standard: {
+    escape: 'Escape',
+    enter: 'Enter',
+  },
+};
+
+const defaultSettings = {
+  openAtLogin: false,
+  shortcuts: {
+    showHistory: [shortcuts.modifiers.ctrlCmd, shortcuts.modifiers.shift, 'V'],
+    close: [shortcuts.standard.escape],
+    confirm: [shortcuts.standard.enter],
+  },
 };
 
 function logger() {
@@ -145,6 +167,26 @@ const closeApp = () => {
   clearInterval(clipboardWatcher);
   app.quit();
 };
+
+const initSettings = () => {
+  settingsWindow = new BrowserWindow({
+    show: false,
+    width: 500,
+    height: 250,
+    resizable: isDebug,
+    maximizable: isDebug,
+    fullscreenable: isDebug,
+    title: 'Settings',
+  });
+  settingsWindow.loadURL(`file://${__dirname}/app.html#/settings`);
+};
+
+const openSettings = () => {
+  settingsWindow.show();
+  settingsWindow.focus();
+  settingsWindow.on('closed', initSettings);
+};
+
 
 app.on('window-all-closed', closeApp);
 
@@ -295,6 +337,12 @@ const createTray = () => {
       },
     },
     {
+      label: 'Settings',
+      click() {
+        openSettings();
+      },
+    },
+    {
       label: 'GitHub',
       role: 'about',
       click() {
@@ -382,6 +430,7 @@ app.on('ready', async () => {
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
   server.on('value_from_history', (event) => writeFromHistory(event.body));
+  initSettings();
 
   console.log('App is ready!');
 

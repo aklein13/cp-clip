@@ -1,5 +1,5 @@
 // @flow
-import React, {PureComponent} from 'react';
+import React, {Component} from 'react';
 import Client from 'electron-rpc/client';
 import {List} from 'react-virtualized';
 
@@ -16,7 +16,7 @@ type IState = {
   search: string,
 };
 
-export default class History extends PureComponent<IProps, IState> {
+export default class History extends Component<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -110,7 +110,7 @@ export default class History extends PureComponent<IProps, IState> {
   render() {
     const {search} = this.state;
     return (
-      <div className="history-container">
+      <div id="history-container">
         <p className={`search-input ${!search ? 'placeholder' : ''}`}>
           {search || 'Search...'}
         </p>
