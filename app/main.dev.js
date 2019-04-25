@@ -373,11 +373,11 @@ app.on('ready', async () => {
   createTray();
 
   // Debug clipboard history
-  if (isDebug) {
-    const now = moment();
-    const nowString = now.format(DATE_FORMAT);
-    clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
-  }
+  // if (isDebug) {
+  //   const now = moment();
+  //   const nowString = now.format(DATE_FORMAT);
+  //   clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
+  // }
 
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();

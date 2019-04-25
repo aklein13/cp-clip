@@ -1,5 +1,5 @@
 // @flow
-import React, {PureComponent} from 'react';
+import React, {Component} from 'react';
 import Client from 'electron-rpc/client';
 import {List} from 'react-virtualized';
 
@@ -16,7 +16,7 @@ type IState = {
   search: string,
 };
 
-export default class History extends PureComponent<IProps, IState> {
+export default class History extends Component<IProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -101,7 +101,9 @@ export default class History extends PureComponent<IProps, IState> {
         style={style}
       >
         {this.state.history[index].value}
-        <span className="date">{this.state.history[index].date}</span>
+        <span className="date">
+          {this.state.history[index].date}
+        </span>
         {index < 9 && <p className="order">{index + 1}</p>}
       </div>
     );
@@ -110,8 +112,8 @@ export default class History extends PureComponent<IProps, IState> {
   render() {
     const {search} = this.state;
     return (
-      <div className="history-container">
-        <p className={`search-input ${!search ? 'placeholder' : ''}`}>
+      <div id="history-container">
+        <p id="search-input" className={!search ? 'placeholder' : ''}>
           {search || 'Search...'}
         </p>
         <List
