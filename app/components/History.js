@@ -25,6 +25,7 @@ export default class History extends Component<IProps, IState> {
       search: '',
     };
     this.history = [];
+    this.inputDebounce = null;
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
@@ -58,8 +59,14 @@ export default class History extends Component<IProps, IState> {
   }
 
   changeSearch = (newSearch: string = '') => {
+    if (this.inputDebounce) {
+      clearTimeout(this.inputDebounce);
+    }
     this.setState({search: newSearch, activeIndex: 0});
-    this.filterHistory(newSearch);
+    this.inputDebounce = setTimeout(() => {
+      this.filterHistory(newSearch);
+      this.inputDebounce = null;
+    }, 200);
   };
 
   filterHistory = (search: string = '') => {

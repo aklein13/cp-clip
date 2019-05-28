@@ -185,12 +185,12 @@ const openWindow = () => {
   globalShortcut.register('Plus', () => server.send('plus'));
   server.send('clipboard_history', clipboardHistory);
   ALPHABET.forEach((char) => {
-    globalShortcut.register(char, () => server.send('write_input', char));
-    globalShortcut.register(`Shift + ${char}`, () => server.send('write_input', char.toUpperCase()));
+    globalShortcut.register(char, () => sendInput(char));
+    globalShortcut.register(`Shift + ${char}`, () => sendInput(char.toUpperCase()));
   });
-  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => server.send('write_input', char)));
+  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => sendInput(char)));
   NUMBERS.forEach((char) => {
-    globalShortcut.register(char, () => server.send('write_input', char));
+    globalShortcut.register(char, () => sendInput(char));
     if (char !== '0') {
       globalShortcut.register(`CommandOrControl + ${char}`, () => server.send('paste_nth', char));
     }
@@ -198,6 +198,8 @@ const openWindow = () => {
   globalShortcut.unregister('CommandOrControl + Shift + V');
   globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
 };
+
+const sendInput = (value) => server.send('write_input', value);
 
 const writeFromHistory = ({value}) => {
   closeWindow();
