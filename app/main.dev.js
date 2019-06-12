@@ -64,7 +64,6 @@ const clipboardWindowConfig = {
   title: 'Clipboard',
   center: true,
   alwaysOnTop: true,
-  // focusable: false,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
 };
@@ -166,8 +165,6 @@ const openWindow = () => {
   clipboardWindow.showInactive();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
-  clipboardWindow.setVisibleOnAllWorkspaces(true);
-  clipboardWindow.setFullScreenable(false);
   // clipboardWindow.openDevTools();
 
   globalShortcut.register('Up', () => server.send('up'));
@@ -231,7 +228,15 @@ const registerInitShortcuts = () => {
 };
 
 const closeWindow = () => {
+  if (isMac) {
+    app.dock.show();
+    setTimeout(() => {
+      app.hide();
+    }, 1000);
+    setTimeout(() => robot.keyTap('v', 'command'), 2000);
+  }
   globalShortcut.unregisterAll();
+  // setTimeout(() => Menu.sendActionToFirstResponder('hide:'), 1500);
   clipboardWindow.minimize();
   clipboardWindow.hide();
   setTimeout(registerInitShortcuts, 0);
