@@ -232,6 +232,7 @@ const registerInitShortcuts = () => {
 
 const closeWindow = () => {
   globalShortcut.unregisterAll();
+  clipboardWindow.minimize();
   clipboardWindow.hide();
   setTimeout(registerInitShortcuts, 0);
 };
