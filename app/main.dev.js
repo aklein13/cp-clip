@@ -199,11 +199,12 @@ const openWindow = () => {
 const sendInput = (value) => server.send('write_input', value);
 
 const writeFromHistory = ({value}) => {
-  closeWindow();
+  const isFocused = clipboardWindow.isFocused();
+  closeWindow(isFocused);
   clipboard.writeText(value);
-  if (isMac) {
+  if (isMac && !isFocused) {
     robot.keyTap('v', 'command');
-  } else {
+  } else if (!isMac) {
     robot.keyTap('v', 'control');
   }
 };
@@ -227,17 +228,18 @@ const registerInitShortcuts = () => {
   // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
 };
 
-const closeWindow = () => {
-  if (isMac) {
+const closeWindow = (isFocused) => {
+  if (isMac && isFocused) {
     app.dock.show();
     setTimeout(() => {
       app.hide();
-    }, 1000);
-    setTimeout(() => robot.keyTap('v', 'command'), 2000);
+      setTimeout(() => robot.keyTap('v', 'command'), 30);
+    }, 250);
   }
   globalShortcut.unregisterAll();
-  // setTimeout(() => Menu.sendActionToFirstResponder('hide:'), 1500);
-  clipboardWindow.minimize();
+  if (!isMac) {
+    clipboardWindow.minimize();
+  }
   clipboardWindow.hide();
   setTimeout(registerInitShortcuts, 0);
 };
