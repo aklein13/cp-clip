@@ -64,7 +64,6 @@ const clipboardWindowConfig = {
   title: 'Clipboard',
   center: true,
   alwaysOnTop: true,
-  // focusable: false,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
 };
@@ -166,8 +165,6 @@ const openWindow = () => {
   clipboardWindow.showInactive();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
-  clipboardWindow.setVisibleOnAllWorkspaces(true);
-  clipboardWindow.setFullScreenable(false);
   // clipboardWindow.openDevTools();
 
   globalShortcut.register('Up', () => server.send('up'));
@@ -202,11 +199,12 @@ const openWindow = () => {
 const sendInput = (value) => server.send('write_input', value);
 
 const writeFromHistory = ({value}) => {
-  closeWindow();
+  const isFocused = clipboardWindow.isFocused();
+  closeWindow(isFocused);
   clipboard.writeText(value);
-  if (isMac) {
+  if (isMac && !isFocused) {
     robot.keyTap('v', 'command');
-  } else {
+  } else if (!isMac) {
     robot.keyTap('v', 'control');
   }
 };
@@ -230,8 +228,18 @@ const registerInitShortcuts = () => {
   // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
 };
 
-const closeWindow = () => {
+const closeWindow = (isFocused) => {
+  if (isMac && isFocused) {
+    app.dock.show();
+    setTimeout(() => {
+      app.hide();
+      setTimeout(() => robot.keyTap('v', 'command'), 30);
+    }, 250);
+  }
   globalShortcut.unregisterAll();
+  if (!isMac) {
+    clipboardWindow.minimize();
+  }
   clipboardWindow.hide();
   setTimeout(registerInitShortcuts, 0);
 };

@@ -69,6 +69,11 @@ export default class History extends Component<IProps, IState> {
     }, 200);
   };
 
+  handleClick = (index: number) => {
+    this.client.request('value_from_history', this.state.history[index] || {value: ''});
+    this.changeSearch();
+  };
+
   filterHistory = (search: string = '') => {
     if (!search) {
       return this.setState({history: this.history});
@@ -106,6 +111,7 @@ export default class History extends Component<IProps, IState> {
         className={`history-element ${this.state.activeIndex === index ? 'active' : ''}`}
         key={key}
         style={style}
+        onClick={() => this.handleClick(index)}
       >
         {this.state.history[index].value}
         <span className="date">
