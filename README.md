@@ -57,3 +57,4 @@ yarn package-all
 - Some styling
 - Settings to change key binds
 - Some way of doing backups, export, import, sync
+- Fix Linux
