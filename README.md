@@ -27,13 +27,8 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 ### Mac
 1. Download <i>cp-clip-x.x.x.dmg</i>
 2. Run and drag it to your Applications
-### Linux
-1. Download <i>cp-clip-x.x.x-x86_64.AppImage</i>
-2. Right click on it
-3. Go to Properties and then Permissions
-4. Check <i>Allow executing file as program</i>
-
-Or you can just `chmod +x` it.
+#### Linux
+###### Currently not working on Linux.
 
 ## Dev Instruction:
 ##### After downloading repository run [Yarn](https://yarnpkg.com/)
