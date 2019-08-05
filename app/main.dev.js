@@ -148,20 +148,22 @@ const closeApp = () => {
 app.on('window-all-closed', closeApp);
 
 const openWindow = () => {
-  const activeScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
   if (isMac) {
     app.dock.hide();
   }
 
-  const activeScreenBounds = activeScreen.bounds;
+  if (!isLinux) {
+    const activeScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const activeScreenBounds = activeScreen.bounds;
+    const nextWindowBounds = {
+      x: activeScreenBounds.x + activeScreenBounds.width / 2 - clipboardWindowConfig.width / 2,
+      y: activeScreenBounds.y + activeScreenBounds.height / 2 - clipboardWindowConfig.height / 2 + 100,
+      width: clipboardWindowConfig.width,
+      height: clipboardWindowConfig.height,
+    };
+    clipboardWindow.setBounds(nextWindowBounds);
+  }
 
-  const nextWindowBounds = {
-    x: activeScreenBounds.x + activeScreenBounds.width / 2 - clipboardWindowConfig.width / 2,
-    y: activeScreenBounds.y + activeScreenBounds.height / 2 - clipboardWindowConfig.height / 2 + 100,
-    width: clipboardWindowConfig.width,
-    height: clipboardWindowConfig.height,
-  };
-  clipboardWindow.setBounds(nextWindowBounds);
   clipboardWindow.showInactive();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);

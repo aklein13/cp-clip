@@ -28,7 +28,16 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 1. Download <i>cp-clip-x.x.x.dmg</i>
 2. Run and drag it to your Applications
 #### Linux
-###### Currently not working on Linux.
+1. Download <i>listen-moe-electron-x.x.x-x86_64.AppImage</i>
+2. Right click on it
+3. Go to Properties and then Permissions
+4. Check <i>Allow executing file as program</i>
+
+Or you can just `chmod +x` it.
+
+If after going though above steps and running the application nothing happens, 
+you most likely need to install `libgtk2.0-0` package manually.
+In order to do that open your terminal and run `sudo apt-get install libgtk2.0-0`
 
 ## Dev Instruction:
 ##### After downloading repository run [Yarn](https://yarnpkg.com/)
@@ -57,4 +66,3 @@ yarn package-all
 - Some styling
 - Settings to change key binds
 - Some way of doing backups, export, import, sync
-- Fix Linux
