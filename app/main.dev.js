@@ -71,7 +71,7 @@ const clipboardWindowConfig = {
 function logger() {
   log.transports.file.level = 'info';
   log.transports.file.format = '{h}:{i}:{s}:{ms} {text}';
-  log.transports.file.maxSize = 5 * 1024 * 1024;
+  log.transports.file.maxSize = 3 * 1024 * 1024;
 }
 
 logger();
@@ -107,21 +107,12 @@ const connectAutoUpdater = () => {
   autoUpdater.on('error', e => log.error(`update error ${e.message}`));
   autoUpdater.on('update-available', () => {
     updateAvailable = true;
-    log.info('Update is available');
     autoUpdater.downloadUpdate();
   });
   autoUpdater.on('update-not-available', () => {
     updateAvailable = false;
-    log.info('update-not-available');
-  });
-  autoUpdater.on('download-progress', progressObj => {
-    let msg = `Download speed: ${progressObj.bytesPerSecond}`;
-    msg = `${msg} - Downloaded ${progressObj.percent}%`;
-    msg = `${msg} (${progressObj.transferred}/${progressObj.total})`;
-    log.info(msg);
   });
   autoUpdater.on('update-downloaded', () => {
-    log.info('update-downloaded');
     const dialogOpts = {
       type: 'info',
       buttons: ['Restart', 'Later'],
