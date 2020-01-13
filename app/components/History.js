@@ -1,4 +1,5 @@
 // @flow
+const path = require('path');
 import React, {Component} from 'react';
 import Client from 'electron-rpc/client';
 import {List} from 'react-virtualized';
@@ -25,7 +26,6 @@ export default class History extends Component<IProps, IState> {
       search: '',
     };
     this.history = [];
-    this.inputDebounce = null;
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
@@ -56,17 +56,19 @@ export default class History extends Component<IProps, IState> {
       this.client.request('value_from_history', valueFromHistory);
       this.changeSearch();
     });
+    this.worker = new Worker(path.resolve(__dirname, 'worker.js'));
+    this.worker.onmessage = (e) => this.setState({history: e.data});
   }
 
+  restartWorker = () => {
+    this.worker.terminate();
+    this.worker = new Worker(path.resolve(__dirname, 'worker.js'));
+    this.worker.onmessage = (e) => this.setState({history: e.data});
+  };
+
   changeSearch = (newSearch: string = '') => {
-    if (this.inputDebounce) {
-      clearTimeout(this.inputDebounce);
-    }
     this.setState({search: newSearch, activeIndex: 0});
-    this.inputDebounce = setTimeout(() => {
-      this.filterHistory(newSearch);
-      this.inputDebounce = null;
-    }, 200);
+    this.filterHistory(newSearch);
   };
 
   handleClick = (index: number) => {
@@ -78,8 +80,8 @@ export default class History extends Component<IProps, IState> {
     if (!search) {
       return this.setState({history: this.history});
     }
-    const lowerCaseSearch = search.toLowerCase();
-    this.setState({history: this.history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch))});
+    this.restartWorker();
+    this.worker.postMessage({history: this.history, search});
   };
 
   handleUp = (amount: number) => {

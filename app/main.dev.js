@@ -66,6 +66,10 @@ const clipboardWindowConfig = {
   alwaysOnTop: true,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
+  webPreferences: {
+    nativeWindowOpen: true,
+    nodeIntegrationInWorker: true,
+  },
 };
 
 function logger() {
