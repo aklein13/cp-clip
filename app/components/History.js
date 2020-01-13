@@ -1,5 +1,5 @@
 // @flow
-const path = require('path');
+import Worker from '../history.worker';
 import React, {Component} from 'react';
 import Client from 'electron-rpc/client';
 import {List} from 'react-virtualized';
@@ -56,13 +56,13 @@ export default class History extends Component<IProps, IState> {
       this.client.request('value_from_history', valueFromHistory);
       this.changeSearch();
     });
-    this.worker = new Worker(path.resolve(__dirname, 'worker.js'));
+    this.worker = new Worker();
     this.worker.onmessage = (e) => this.setState({history: e.data});
   }
 
   restartWorker = () => {
     this.worker.terminate();
-    this.worker = new Worker(path.resolve(__dirname, 'worker.js'));
+   this.worker = new Worker();
     this.worker.onmessage = (e) => this.setState({history: e.data});
   };
 
