@@ -56,19 +56,35 @@ export default class History extends Component<IProps, IState> {
       this.client.request('value_from_history', valueFromHistory);
       this.changeSearch();
     });
-    this.worker = new Worker();
-    this.worker.onmessage = (e) => this.setState({history: e.data});
+    this.inputDebounce = null;
+    this.worker = {
+      terminate: () => {
+      },
+    };
+    this.workerReady = false;
   }
 
   restartWorker = () => {
+    if (this.workerReady) {
+      return;
+    }
     this.worker.terminate();
-   this.worker = new Worker();
-    this.worker.onmessage = (e) => this.setState({history: e.data});
+    this.worker = new Worker();
+    this.worker.onmessage = (e) => {
+      this.setState({history: e.data});
+      this.workerReady = true;
+    };
   };
 
   changeSearch = (newSearch: string = '') => {
+    if (this.inputDebounce) {
+      clearTimeout(this.inputDebounce);
+    }
     this.setState({search: newSearch, activeIndex: 0});
-    this.filterHistory(newSearch);
+    this.inputDebounce = setTimeout(() => {
+      this.filterHistory(newSearch);
+      this.inputDebounce = null;
+    }, 200);
   };
 
   handleClick = (index: number) => {
