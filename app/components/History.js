@@ -87,7 +87,13 @@ export default class History extends Component<IProps, IState> {
       return this.setState({history: this.history});
     }
     const lowerCaseSearch = search.toLowerCase();
-    this.setState({history: this.history.filter((item) => item.value.toLowerCase().includes(lowerCaseSearch))});
+    const result = [];
+    for (let i = 0; i < this.history.length; i++) {
+      if (this.history[i].value.toLowerCase().indexOf(lowerCaseSearch) !== -1) {
+        result.push(this.history[i]);
+      }
+    }
+    this.setState({history: result});
   };
 
   handleUp = (amount: number) => {
