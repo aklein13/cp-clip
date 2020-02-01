@@ -66,6 +66,9 @@ const clipboardWindowConfig = {
   alwaysOnTop: true,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
+  webPreferences: {
+    nodeIntegration: true,
+  },
 };
 
 function logger() {
@@ -186,7 +189,11 @@ const openWindow = () => {
     }
   });
   globalShortcut.unregister('CommandOrControl + Shift + V');
-  globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
+  if (isMac) {
+    globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
+  } else {
+    setTimeout(() => globalShortcut.register('CommandOrControl + Shift + V', closeWindow), 500);
+  }
 };
 
 const sendInput = (value) => server.send('write_input', value);
@@ -334,9 +341,10 @@ const createTray = () => {
 };
 
 app.on('ready', async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // Currently doesn't work on windows 10 dark mode
+  // if (isDebug) {
+  //   await installExtensions();
+  // }
 
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
