@@ -168,7 +168,7 @@ const openWindow = () => {
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
   globalShortcut.register('Enter', () => server.send('get_current_value'));
-  globalShortcut.register('Escape', closeWindow);
+  globalShortcut.register('Escape', handleEscape);
   globalShortcut.register('Backspace', () => server.send('backspace'));
   globalShortcut.register('CommandOrControl + Backspace', () => server.send('clear'));
   globalShortcut.register('Delete', () => server.send('clear'));
@@ -225,6 +225,11 @@ const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
   // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
+};
+
+const handleEscape = () => {
+  server.send('escape');
+  closeWindow();
 };
 
 const closeWindow = (isFocused) => {

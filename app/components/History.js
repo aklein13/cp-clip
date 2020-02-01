@@ -30,12 +30,15 @@ export default class History extends Component<IProps, IState> {
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
       this.history = body;
-      this.changeSearch();
+      this.setState({search: '', activeIndex: 0});
+      this.filterHistory('');
     });
     this.client.on('get_current_value', () => {
-      this.client.request('value_from_history', this.state.history[this.state.activeIndex] || {value: ''});
-      this.changeSearch();
+      const foundValue = this.state.history[this.state.activeIndex] || {value: ''};
+      this.resetHistory();
+      this.client.request('value_from_history', foundValue);
     });
+    this.client.on('escape', this.resetHistory);
     this.client.on('up', () => this.handleUp(1));
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
@@ -57,6 +60,11 @@ export default class History extends Component<IProps, IState> {
       this.changeSearch();
     });
   }
+
+  resetHistory = () => {
+    this.setState({search: '', activeIndex: 0});
+    this.filterHistory('');
+  };
 
   changeSearch = (newSearch: string = '') => {
     if (this.inputDebounce) {
