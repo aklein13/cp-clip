@@ -1,7 +1,7 @@
 {
   "name": "cp-clip",
   "productName": "cp-clip",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "cp-clip",
   "main": "./main.prod.js",
   "author": {
@@ -15,6 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "robotjs": "^0.5.1"
+    "robotjs": "^0.6.0"
   }
 }

@@ -66,6 +66,9 @@ const clipboardWindowConfig = {
   alwaysOnTop: true,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
+  webPreferences: {
+    nodeIntegration: true,
+  },
 };
 
 function logger() {
@@ -94,7 +97,6 @@ const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = [
     'REACT_DEVELOPER_TOOLS',
-    'REDUX_DEVTOOLS',
   ];
   return Promise
     .all(extensions.map(name => installer.default(installer[name], forceDownload)))
@@ -166,7 +168,7 @@ const openWindow = () => {
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
   globalShortcut.register('Enter', () => server.send('get_current_value'));
-  globalShortcut.register('Escape', closeWindow);
+  globalShortcut.register('Escape', handleEscape);
   globalShortcut.register('Backspace', () => server.send('backspace'));
   globalShortcut.register('CommandOrControl + Backspace', () => server.send('clear'));
   globalShortcut.register('Delete', () => server.send('clear'));
@@ -186,7 +188,11 @@ const openWindow = () => {
     }
   });
   globalShortcut.unregister('CommandOrControl + Shift + V');
-  globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
+  if (isMac) {
+    globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
+  } else {
+    setTimeout(() => globalShortcut.register('CommandOrControl + Shift + V', closeWindow), 500);
+  }
 };
 
 const sendInput = (value) => server.send('write_input', value);
@@ -219,6 +225,11 @@ const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
   // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
+};
+
+const handleEscape = () => {
+  server.send('escape');
+  closeWindow();
 };
 
 const closeWindow = (isFocused) => {
@@ -334,9 +345,10 @@ const createTray = () => {
 };
 
 app.on('ready', async () => {
-  if (isDebug) {
-    await installExtensions();
-  }
+  // Currently doesn't work on windows 10 dark mode
+  // if (isDebug) {
+  //   await installExtensions();
+  // }
 
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
