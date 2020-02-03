@@ -29,6 +29,7 @@
   "build": {
     "productName": "cp-clip",
     "appId": "org.aklein13.cp-clip",
+    "npmRebuild": false,
     "files": [
       "dist/",
       "node_modules/",
