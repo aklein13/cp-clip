@@ -19,6 +19,8 @@ import {autoUpdater} from 'electron-updater';
 import path from 'path';
 import moment from 'moment';
 
+const fs = require('fs');
+
 const robot = require('robotjs');
 
 const Config = require('electron-config');
@@ -38,6 +40,10 @@ const server = new Server();
 // const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
+
+const fileFilters = [
+  {name: 'Backup', extensions: ['json']},
+];
 
 let previousClipboardValue = null;
 let clipboardHistory = [];
@@ -292,6 +298,71 @@ const searchInGoogle = () => {
 const createTray = () => {
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
   let menuTemplate = [
+    {
+      label: 'Backup',
+      type: 'submenu',
+      submenu: [
+        {
+          label: 'Create',
+          async click() {
+            const now = moment();
+            const defaultPath = `cp-clip_${now.format('YYYY-MM-DDTHH-mm-ss')}.json`;
+            const {filePath} = await dialog.showSaveDialog(null, {
+              title: 'Create backup',
+              defaultPath,
+              filters: fileFilters,
+            });
+            if (filePath) {
+              fs.writeFileSync(filePath, JSON.stringify(clipboardHistory));
+            }
+          },
+        },
+        {
+          label: 'Restore',
+          async click() {
+            const {filePaths} = await dialog.showOpenDialog(null, {
+              title: 'Open backup',
+              filters: fileFilters,
+            });
+            if (filePaths && filePaths.length) {
+              try {
+                const result = JSON.parse(fs.readFileSync(filePaths[0]));
+                const validHistory = result.filter((item) => item && item.value && item.date);
+                if (!validHistory.length) {
+                  return dialog.showErrorBox('Invalid backup', 'No valid history found in the backup.');
+                }
+                const {response, checkboxChecked} = await dialog.showMessageBox(null, {
+                  type: 'question',
+                  buttons: ['Cancel', 'Yes, load the backup'],
+                  defaultId: 2,
+                  title: 'Confirm',
+                  message: 'Do you want to load the backup?',
+                  checkboxLabel: 'Override entire history',
+                  detail: `Loaded the backup with ${validHistory.length} entries.\n
+Your current history has ${clipboardHistory.length} entries.\n
+Please confirm the load and choose if you want to override the current history.
+If you do not want to override, your current history will get merged with the backup.'`,
+                  checkboxChecked: false,
+                });
+                if (response) {
+                  if (checkboxChecked) {
+                    clipboardHistory = validHistory;
+                    config.set('clipboardHistory', clipboardHistory);
+                  } else {
+                    // TODO backup merge logic
+                  }
+                }
+              } catch (e) {
+                dialog.showErrorBox('Error', 'Invalid backup file.');
+              }
+            }
+          },
+        },
+      ],
+    },
+    {
+      type: 'separator',
+    },
     {
       label: 'Check updates',
       async click() {
