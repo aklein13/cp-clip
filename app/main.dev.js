@@ -98,16 +98,16 @@ if (isDebug) {
   require('module').globalPaths.push(p);
 }
 
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = [
-    'REACT_DEVELOPER_TOOLS',
-  ];
-  return Promise
-    .all(extensions.map(name => installer.default(installer[name], forceDownload)))
-    .catch(console.log);
-};
+// const installExtensions = async () => {
+//   const installer = require('electron-devtools-installer');
+//   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+//   const extensions = [
+//     'REACT_DEVELOPER_TOOLS',
+//   ];
+//   return Promise
+//     .all(extensions.map(name => installer.default(installer[name], forceDownload)))
+//     .catch(console.log);
+// };
 
 const connectAutoUpdater = () => {
   autoUpdater.autoDownload = false;
@@ -295,6 +295,18 @@ const searchInGoogle = () => {
   }, 550);
 };
 
+const cleanupHistory = () => {
+  const clipboardHistoryUnique = [];
+  clipboardHistory.forEach((element, index) => {
+    const nextElement = clipboardHistory[index + 1];
+    if (!nextElement || element.value !== nextElement.value || element.date !== nextElement.date) {
+      clipboardHistoryUnique.push(element);
+    }
+  });
+  clipboardHistory = clipboardHistoryUnique;
+  config.set('clipboardHistory', clipboardHistory);
+};
+
 const createTray = () => {
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
   let menuTemplate = [
@@ -326,7 +338,11 @@ const createTray = () => {
             });
             if (filePaths && filePaths.length) {
               try {
-                const result = JSON.parse(fs.readFileSync(filePaths[0]));
+                let result = JSON.parse(fs.readFileSync(filePaths[0]));
+                // Support copied config files
+                if (result.clipboardHistory) {
+                  result = result.clipboardHistory;
+                }
                 const validHistory = result.filter((item) => item && item.value && item.date);
                 if (!validHistory.length) {
                   return dialog.showErrorBox('Invalid backup', 'No valid history found in the backup.');
@@ -341,18 +357,42 @@ const createTray = () => {
                   detail: `Loaded the backup with ${validHistory.length} entries.\n
 Your current history has ${clipboardHistory.length} entries.\n
 Please confirm the load and choose if you want to override the current history.
-If you do not want to override, your current history will get merged with the backup.'`,
+If you do not want to override, your current history will get merged with the backup.\n
+Merge will automatically remove all duplicates (with the same value and the same date).
+`,
                   checkboxChecked: false,
                 });
                 if (response) {
                   if (checkboxChecked) {
                     clipboardHistory = validHistory;
-                    config.set('clipboardHistory', clipboardHistory);
                   } else {
-                    // TODO backup merge logic
+                    const oldDateFormat = 'HH:mm MM-DD-YYYY';
+                    clipboardHistory.push(...validHistory);
+                    clipboardHistory = clipboardHistory.sort((a, b) => {
+                      let aDate = moment(a.date, DATE_FORMAT);
+                      let bDate = moment(b.date, DATE_FORMAT);
+                      // Old date format support
+                      if (!aDate.isValid()) {
+                        aDate = moment(a.date, oldDateFormat);
+                        a.date = aDate.format(DATE_FORMAT);
+                      }
+                      if (!bDate.isValid()) {
+                        bDate = moment(b.date, oldDateFormat);
+                        b.date = bDate.format(DATE_FORMAT);
+                      }
+                      return bDate.diff(aDate);
+                    });
                   }
+                  cleanupHistory();
+                  dialog.showMessageBox(null, {
+                    type: 'info',
+                    title: 'Success',
+                    message: `Successfully restored the backup.\n
+Your new history has  ${clipboardHistory.length} entries.`,
+                  });
                 }
               } catch (e) {
+                log.error(e);
                 dialog.showErrorBox('Error', 'Invalid backup file.');
               }
             }
@@ -427,9 +467,8 @@ app.on('ready', async () => {
   const previousClipboardHistory = config.get('clipboardHistory');
   if (previousClipboardHistory && previousClipboardHistory.length) {
     // Health check
-    const validHistory = previousClipboardHistory.filter((item) => item && item.value && item.date);
-    config.set('clipboardHistory', validHistory);
-    clipboardHistory = validHistory;
+    clipboardHistory = previousClipboardHistory.filter((item) => item && item.value && item.date);
+    cleanupHistory();
   }
 
   previousClipboardValue = clipboard.readText();

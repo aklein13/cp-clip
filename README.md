@@ -61,7 +61,6 @@ yarn package-all
 ```
 
 # TODO
-- Local backup and restore
 - Settings to change key binds
 - Allow for direct input on click
 - Show release notes in update prompt?
