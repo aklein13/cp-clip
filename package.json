@@ -1,7 +1,7 @@
 {
   "name": "cp-clip",
   "productName": "cp-clip",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "cp-clip",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
