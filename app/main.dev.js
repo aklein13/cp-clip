@@ -519,7 +519,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
             type: 'info',
             buttons: ['Close'],
             title: 'cp-clip',
-            detail: `There are currently no updates available.\nYour version 0.5.4 is the latest one.`,
+            detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
           });
         }
       },
