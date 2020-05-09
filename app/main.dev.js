@@ -188,12 +188,12 @@ const connectAutoUpdater = () => {
     };
     dialog.showMessageBox(dialogOpts, response => {
       if (response === 0) {
-        // Please just work...
-        autoUpdater.quitAndInstall();
+        clearInterval(clipboardWatcher);
         setImmediate(() => {
-          autoUpdater.quitAndInstall();
+          app.removeAllListeners('window-all-closed');
+          clipboardWindow.close();
+          autoUpdater.quitAndInstall(false);
         });
-        setTimeout(() => autoUpdater.quitAndInstall(), 4000);
       }
     });
   });
