@@ -28,10 +28,12 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 1. Download <i>cp-clip-x.x.x.dmg</i>
 2. Run and drag it to your Applications
 #### Linux
-1. Download <i>listen-moe-electron-x.x.x-x86_64.AppImage</i>
+##### The latest version does not work at the moment. The latest working version is 0.5.1.
+1. Download https://github.com/aklein13/cp-clip/releases/download/v0.5.1/cp-clip-0.5.1.AppImage
 2. Right click on it
 3. Go to Properties and then Permissions
 4. Check <i>Allow executing file as program</i>
+5. Run it
 
 Or you can just `chmod +x` it.
 

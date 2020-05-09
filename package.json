@@ -1,7 +1,7 @@
 {
   "name": "cp-clip",
   "productName": "cp-clip",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "cp-clip",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
@@ -25,7 +25,6 @@
     "start-renderer-dev": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
     "clear": "rimraf release"
   },
-  "browserslist": "electron 7.1",
   "build": {
     "productName": "cp-clip",
     "appId": "org.aklein13.cp-clip",
@@ -139,10 +138,11 @@
     "terser-webpack-plugin": "^2.3.2",
     "uglifyjs-webpack-plugin": "2.2.0",
     "url-loader": "^3.0.0",
-     "webpack": "^4.41.5",
+    "webpack": "^4.41.5",
     "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1",
+    "browserslist-config-erb": "^0.0.1",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
@@ -160,6 +160,9 @@
     "react-virtualized": "^9.21.2",
     "source-map-support": "^0.5.16"
   },
+  "browserslist": [
+    "extends browserslist-config-erb"
+  ],
   "devEngines": {
     "node": ">=8.x",
     "npm": ">=4.x",
