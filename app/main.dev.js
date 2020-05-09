@@ -188,7 +188,12 @@ const connectAutoUpdater = () => {
     };
     dialog.showMessageBox(dialogOpts, response => {
       if (response === 0) {
+        // Please just work...
         autoUpdater.quitAndInstall();
+        setImmediate(() => {
+          autoUpdater.quitAndInstall();
+        });
+        setTimeout(() => autoUpdater.quitAndInstall(), 4000);
       }
     });
   });
