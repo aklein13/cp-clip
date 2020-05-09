@@ -20,7 +20,6 @@ import path from 'path';
 import moment from 'moment';
 
 const fs = require('fs');
-
 const robot = require('robotjs');
 
 const Config = require('electron-config');
@@ -93,7 +92,7 @@ if (process.env.NODE_ENV === 'production') {
 const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  require('electron-debug')();
+  // require('electron-debug')();
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }

@@ -93,9 +93,7 @@
     "react",
     "flow",
     "sass",
-    "webpack",
-    "hot",
-    "reload"
+    "webpack"
   ],
   "homepage": "https://github.com/aklein13/cp-clip#readme",
   "devDependencies": {
@@ -118,9 +116,8 @@
     "cross-spawn": "^6.0.4",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.2",
-    "electron": "^7.1.11",
-    "electron-builder": "^21.2.0",
-    "electron-devtools-installer": "^2.2.4",
+    "electron": "^7.2.4",
+    "electron-builder": "^22.6.0",
     "electron-rebuild": "^1.7.3",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^3.0.2",
@@ -131,7 +128,7 @@
     "flow-typed": "^2.5.1",
     "identity-obj-proxy": "^3.0.0",
     "minimist": "^1.2.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.14.1",
     "npm-logical-tree": "^1.2.1",
     "react-test-renderer": "^16.2.0",
     "rimraf": "^2.7.1",
@@ -148,13 +145,11 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
-    "devtron": "^1.4.0",
     "electron-config": "^1.0.0",
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.14",
     "electron-rpc": "^2.0.1",
-    "electron-updater": "^2.21.10",
-    "font-awesome": "^4.7.0",
+    "electron-updater": "^2.23.3",
     "history": "^4.7.2",
     "moment": "^2.24.0",
     "react": "^16.12.0",
