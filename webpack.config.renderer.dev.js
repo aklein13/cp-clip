@@ -231,8 +231,13 @@ export default merge.smart(baseConfig, {
       debug: true,
     }),
 
-    new ExtractTextPlugin({
-      filename: '[name].css',
+    // new ExtractTextPlugin({
+    //   filename: '[name].css',
+    // }),
+
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
     }),
   ],
 

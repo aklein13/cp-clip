@@ -213,5 +213,9 @@ export default merge.smart(baseConfig, {
         },
       },
     }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/,
+      contextRegExp: /moment$/,
+    }),
   ],
 });
