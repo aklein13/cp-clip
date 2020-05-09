@@ -149,7 +149,7 @@
     "electron-debug": "^1.5.0",
     "electron-log": "^2.2.14",
     "electron-rpc": "^2.0.1",
-    "electron-updater": "^2.23.3",
+    "electron-updater": "^3.2.3",
     "history": "^4.7.2",
     "moment": "^2.24.0",
     "react": "^16.12.0",
