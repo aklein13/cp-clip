@@ -63,6 +63,7 @@ yarn package-all
 ```
 
 # TODO
+- Fix "Rest and update" on update. Currently it doesn't work so it will update on next run.
 - Settings to change key binds
 - Allow for direct input on click
 - Show release notes in update prompt?
