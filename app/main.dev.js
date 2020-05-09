@@ -15,7 +15,7 @@ import {
   clipboard,
 } from 'electron';
 import Server from 'electron-rpc/server';
-import {autoUpdater} from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import moment from 'moment';
 
@@ -33,21 +33,79 @@ let googlePreviousValue = null;
 let clipboardWatcher = null;
 
 const log = require('electron-log');
-const trayIcon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
+const trayIcon =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
 
 const server = new Server();
 // const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 
-const fileFilters = [
-  {name: 'Backup', extensions: ['json']},
-];
+const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
 let clipboardHistory = [];
-const ALPHABET = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-const SPECIAL_CHARS = ['~', '!', '"', '\'', '?', '.', ';', '[', ']', '\\', ',', '/', '@', '#', '$', '%', '|', '^', '&', '*', '(', ')', '-', '=', '{', '}', ':', '<', '>', '`', '_'];
+const ALPHABET = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+];
+const SPECIAL_CHARS = [
+  '~',
+  '!',
+  '"',
+  "'",
+  '?',
+  '.',
+  ';',
+  '[',
+  ']',
+  '\\',
+  ',',
+  '/',
+  '@',
+  '#',
+  '$',
+  '%',
+  '|',
+  '^',
+  '&',
+  '*',
+  '(',
+  ')',
+  '-',
+  '=',
+  '{',
+  '}',
+  ':',
+  '<',
+  '>',
+  '`',
+  '_',
+];
 const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
@@ -89,7 +147,8 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDebug =
+  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
   // require('electron-debug')();
@@ -124,9 +183,10 @@ const connectAutoUpdater = () => {
       type: 'info',
       buttons: ['Restart', 'Later'],
       title: 'Application Update',
-      detail: 'A new version has been downloaded.\nRestart the application to apply the updates.',
+      detail:
+        'A new version has been downloaded.\nRestart the application to apply the updates.',
     };
-    dialog.showMessageBox(dialogOpts, (response) => {
+    dialog.showMessageBox(dialogOpts, response => {
       if (response === 0) {
         autoUpdater.quitAndInstall();
       }
@@ -151,11 +211,20 @@ const openWindow = () => {
   }
 
   if (!isLinux) {
-    const activeScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const activeScreen = screen.getDisplayNearestPoint(
+      screen.getCursorScreenPoint()
+    );
     const activeScreenBounds = activeScreen.bounds;
     const nextWindowBounds = {
-      x: activeScreenBounds.x + activeScreenBounds.width / 2 - clipboardWindowConfig.width / 2,
-      y: activeScreenBounds.y + activeScreenBounds.height / 2 - clipboardWindowConfig.height / 2 + 100,
+      x:
+        activeScreenBounds.x +
+        activeScreenBounds.width / 2 -
+        clipboardWindowConfig.width / 2,
+      y:
+        activeScreenBounds.y +
+        activeScreenBounds.height / 2 -
+        clipboardWindowConfig.height / 2 +
+        100,
       width: clipboardWindowConfig.width,
       height: clipboardWindowConfig.height,
     };
@@ -175,34 +244,46 @@ const openWindow = () => {
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
   globalShortcut.register('Backspace', () => server.send('backspace'));
-  globalShortcut.register('CommandOrControl + Backspace', () => server.send('clear'));
+  globalShortcut.register('CommandOrControl + Backspace', () =>
+    server.send('clear')
+  );
   globalShortcut.register('Delete', () => server.send('clear'));
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.register('Space', () => server.send('space'));
   globalShortcut.register('Plus', () => server.send('plus'));
   server.send('clipboard_history', clipboardHistory);
-  ALPHABET.forEach((char) => {
+  ALPHABET.forEach(char => {
     globalShortcut.register(char, () => sendInput(char));
-    globalShortcut.register(`Shift + ${char}`, () => sendInput(char.toUpperCase()));
+    globalShortcut.register(`Shift + ${char}`, () =>
+      sendInput(char.toUpperCase())
+    );
   });
-  SPECIAL_CHARS.forEach((char) => globalShortcut.register(char, () => sendInput(char)));
-  NUMBERS.forEach((char) => {
+  SPECIAL_CHARS.forEach(char =>
+    globalShortcut.register(char, () => sendInput(char))
+  );
+  NUMBERS.forEach(char => {
     globalShortcut.register(char, () => sendInput(char));
     if (char !== '0') {
-      globalShortcut.register(`CommandOrControl + ${char}`, () => server.send('paste_nth', char));
+      globalShortcut.register(`CommandOrControl + ${char}`, () =>
+        server.send('paste_nth', char)
+      );
     }
   });
   globalShortcut.unregister('CommandOrControl + Shift + V');
   if (isMac) {
     globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
   } else {
-    setTimeout(() => globalShortcut.register('CommandOrControl + Shift + V', closeWindow), 500);
+    setTimeout(
+      () =>
+        globalShortcut.register('CommandOrControl + Shift + V', closeWindow),
+      500
+    );
   }
 };
 
-const sendInput = (value) => server.send('write_input', value);
+const sendInput = value => server.send('write_input', value);
 
-const writeFromHistory = ({value}) => {
+const writeFromHistory = ({ value }) => {
   const isFocused = clipboardWindow.isFocused();
   closeWindow(isFocused);
   clipboard.writeText(value);
@@ -237,7 +318,7 @@ const handleEscape = () => {
   closeWindow();
 };
 
-const closeWindow = (isFocused) => {
+const closeWindow = isFocused => {
   if (isMac && isFocused) {
     app.dock.show();
     setTimeout(() => {
@@ -253,7 +334,10 @@ const closeWindow = (isFocused) => {
   setTimeout(registerInitShortcuts, 0);
 };
 
-const searchLastInGoogle = () => shell.openExternal(`https://www.google.com/search?q=${clipboardHistory[0].value}`);
+const searchLastInGoogle = () =>
+  shell.openExternal(
+    `https://www.google.com/search?q=${clipboardHistory[0].value}`
+  );
 
 const searchInGoogle = () => {
   if (googleTimeout || googleInterval) {
@@ -261,9 +345,14 @@ const searchInGoogle = () => {
   }
 
   // Interval to check if value in clipboard has changed.
-  googlePreviousValue = clipboardHistory.length ? clipboardHistory[0].value : '';
+  googlePreviousValue = clipboardHistory.length
+    ? clipboardHistory[0].value
+    : '';
   googleInterval = setInterval(() => {
-    if (clipboardHistory.length && googlePreviousValue !== clipboardHistory[0].value) {
+    if (
+      clipboardHistory.length &&
+      googlePreviousValue !== clipboardHistory[0].value
+    ) {
       clearTimeout(googleTimeout);
       clearInterval(googleInterval);
       searchLastInGoogle();
@@ -298,7 +387,11 @@ const cleanupHistory = () => {
   const clipboardHistoryUnique = [];
   clipboardHistory.forEach((element, index) => {
     const nextElement = clipboardHistory[index + 1];
-    if (!nextElement || element.value !== nextElement.value || element.date !== nextElement.date) {
+    if (
+      !nextElement ||
+      element.value !== nextElement.value ||
+      element.date !== nextElement.date
+    ) {
       clipboardHistoryUnique.push(element);
     }
   });
@@ -317,8 +410,10 @@ const createTray = () => {
           label: 'Create',
           async click() {
             const now = moment();
-            const defaultPath = `cp-clip_${now.format('YYYY-MM-DDTHH-mm-ss')}.json`;
-            const {filePath} = await dialog.showSaveDialog(null, {
+            const defaultPath = `cp-clip_${now.format(
+              'YYYY-MM-DDTHH-mm-ss'
+            )}.json`;
+            const { filePath } = await dialog.showSaveDialog(null, {
               title: 'Create backup',
               defaultPath,
               filters: fileFilters,
@@ -331,7 +426,7 @@ const createTray = () => {
         {
           label: 'Restore',
           async click() {
-            const {filePaths} = await dialog.showOpenDialog(null, {
+            const { filePaths } = await dialog.showOpenDialog(null, {
               title: 'Open backup',
               filters: fileFilters,
             });
@@ -342,11 +437,19 @@ const createTray = () => {
                 if (result.clipboardHistory) {
                   result = result.clipboardHistory;
                 }
-                const validHistory = result.filter((item) => item && item.value && item.date);
+                const validHistory = result.filter(
+                  item => item && item.value && item.date
+                );
                 if (!validHistory.length) {
-                  return dialog.showErrorBox('Invalid backup', 'No valid history found in the backup.');
+                  return dialog.showErrorBox(
+                    'Invalid backup',
+                    'No valid history found in the backup.'
+                  );
                 }
-                const {response, checkboxChecked} = await dialog.showMessageBox(null, {
+                const {
+                  response,
+                  checkboxChecked,
+                } = await dialog.showMessageBox(null, {
                   type: 'question',
                   buttons: ['Cancel', 'Yes, load the backup'],
                   defaultId: 2,
@@ -407,7 +510,10 @@ Your new history has  ${clipboardHistory.length} entries.`,
       async click() {
         clearInterval(updateInterval);
         await autoUpdater.checkForUpdates();
-        updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
+        updateInterval = setInterval(
+          () => autoUpdater.checkForUpdates(),
+          UPDATE_INTERVAL
+        );
         if (!updateAvailable) {
           dialog.showMessageBox({
             type: 'info',
@@ -435,18 +541,22 @@ Your new history has  ${clipboardHistory.length} entries.`,
   ];
   if (!isLinux) {
     openAtLogin = app.getLoginItemSettings().openAtLogin;
-    menuTemplate.unshift({
+    menuTemplate.unshift(
+      {
         label: 'Autostart',
         type: 'checkbox',
         checked: openAtLogin,
         click() {
           openAtLogin = !openAtLogin;
-          app.setLoginItemSettings({...app.getLoginItemSettings(), openAtLogin});
+          app.setLoginItemSettings({
+            ...app.getLoginItemSettings(),
+            openAtLogin,
+          });
         },
       },
       {
         type: 'separator',
-      },
+      }
     );
   }
   const contextMenu = Menu.buildFromTemplate(menuTemplate);
@@ -466,7 +576,9 @@ app.on('ready', async () => {
   const previousClipboardHistory = config.get('clipboardHistory');
   if (previousClipboardHistory && previousClipboardHistory.length) {
     // Health check
-    clipboardHistory = previousClipboardHistory.filter((item) => item && item.value && item.date);
+    clipboardHistory = previousClipboardHistory.filter(
+      item => item && item.value && item.date
+    );
     cleanupHistory();
   }
 
@@ -476,10 +588,16 @@ app.on('ready', async () => {
     const now = moment();
     if (clipboardHistory.length) {
       if (clipboardHistory[0].value !== previousClipboardValue) {
-        clipboardHistory.unshift({value: previousClipboardValue, date: now.format(DATE_FORMAT)});
+        clipboardHistory.unshift({
+          value: previousClipboardValue,
+          date: now.format(DATE_FORMAT),
+        });
       }
     } else {
-      clipboardHistory.unshift({value: previousClipboardValue, date: now.format(DATE_FORMAT)});
+      clipboardHistory.unshift({
+        value: previousClipboardValue,
+        date: now.format(DATE_FORMAT),
+      });
     }
     config.set('clipboardHistory', clipboardHistory);
   }
@@ -489,7 +607,10 @@ app.on('ready', async () => {
     if (newClipboardValue && newClipboardValue !== previousClipboardValue) {
       previousClipboardValue = newClipboardValue;
       const now = moment();
-      clipboardHistory.unshift({value: clipboard.readText(), date: now.format(DATE_FORMAT)});
+      clipboardHistory.unshift({
+        value: clipboard.readText(),
+        date: now.format(DATE_FORMAT),
+      });
       config.set('clipboardHistory', clipboardHistory);
     }
   }, CLIPBOARD_WATCH_INTERVAL);
@@ -505,12 +626,15 @@ app.on('ready', async () => {
 
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
-  server.on('value_from_history', (event) => writeFromHistory(event.body));
+  server.on('value_from_history', event => writeFromHistory(event.body));
 
   console.log('App is ready!');
 
   if (!isDebug) {
     await autoUpdater.checkForUpdates();
-    updateInterval = setInterval(() => autoUpdater.checkForUpdates(), UPDATE_INTERVAL);
+    updateInterval = setInterval(
+      () => autoUpdater.checkForUpdates(),
+      UPDATE_INTERVAL
+    );
   }
 });

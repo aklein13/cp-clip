@@ -1,12 +1,12 @@
 import React from 'react';
-import {render} from 'react-dom';
-import {AppContainer} from 'react-hot-loader';
+import { render } from 'react-dom';
+import { AppContainer } from 'react-hot-loader';
 import Root from './containers/Root';
 import './app.global.scss';
 
 render(
   <AppContainer>
-    <Root/>
+    <Root />
   </AppContainer>,
   document.getElementById('root')
 );
@@ -16,7 +16,7 @@ if (module.hot) {
     const NextRoot = require('./containers/Root');
     render(
       <AppContainer>
-        <NextRoot/>
+        <NextRoot />
       </AppContainer>,
       document.getElementById('root')
     );

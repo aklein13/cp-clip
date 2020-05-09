@@ -4,7 +4,7 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import {BundleAnalyzerPlugin} from 'webpack-bundle-analyzer';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 import baseConfig from './webpack.config.base';
@@ -22,7 +22,7 @@ export default merge.smart(baseConfig, {
   output: {
     path: path.join(__dirname, 'app/dist'),
     publicPath: './dist/',
-    filename: 'renderer.prod.js'
+    filename: 'renderer.prod.js',
   },
 
   module: {
@@ -32,7 +32,7 @@ export default merge.smart(baseConfig, {
         test: /\.global\.(scss|sass)$/,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
             loader: 'css-loader',
@@ -41,16 +41,16 @@ export default merge.smart(baseConfig, {
             },
           },
           {
-            loader: 'sass-loader'
-          }
-        ]
+            loader: 'sass-loader',
+          },
+        ],
       },
       // Add SASS support  - compile all other .scss files and pipe it to style.css
       {
         test: /^((?!\.global).)*\.(scss|sass)$/,
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
             loader: 'css-loader',
@@ -59,12 +59,12 @@ export default merge.smart(baseConfig, {
               sourceMap: true,
               importLoaders: 1,
               localIdentName: '[name]__[local]__[hash:base64:5]',
-            }
+            },
           },
           {
-            loader: 'sass-loader'
-          }
-        ]
+            loader: 'sass-loader',
+          },
+        ],
       },
       // WOFF Font
       {
@@ -74,7 +74,7 @@ export default merge.smart(baseConfig, {
           options: {
             limit: 10000,
             mimetype: 'application/font-woff',
-          }
+          },
         },
       },
       // WOFF2 Font
@@ -85,8 +85,8 @@ export default merge.smart(baseConfig, {
           options: {
             limit: 10000,
             mimetype: 'application/font-woff',
-          }
-        }
+          },
+        },
       },
       // TTF Font
       {
@@ -95,9 +95,9 @@ export default merge.smart(baseConfig, {
           loader: 'url-loader',
           options: {
             limit: 10000,
-            mimetype: 'application/octet-stream'
-          }
-        }
+            mimetype: 'application/octet-stream',
+          },
+        },
       },
       // EOT Font
       {
@@ -112,15 +112,15 @@ export default merge.smart(baseConfig, {
           options: {
             limit: 10000,
             mimetype: 'image/svg+xml',
-          }
-        }
+          },
+        },
       },
       // Common Image Formats
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
         use: 'url-loader',
-      }
-    ]
+      },
+    ],
   },
 
   plugins: [
@@ -134,17 +134,18 @@ export default merge.smart(baseConfig, {
      * development checks
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
     }),
 
     new UglifyJSPlugin({
       parallel: true,
-      sourceMap: true
+      sourceMap: true,
     }),
 
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+      analyzerMode:
+        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
   ],
 });
