@@ -341,7 +341,9 @@ const closeWindow = isFocused => {
 
 const searchLastInGoogle = () =>
   shell.openExternal(
-    `https://www.google.com/search?q=${clipboardHistory[0].value}`
+    `https://www.google.com/search?q=${encodeURIComponent(
+      clipboardHistory[0].value
+    )}`
   );
 
 const searchInGoogle = () => {
@@ -531,9 +533,8 @@ Your new history has  ${clipboardHistory.length} entries.`,
     },
     {
       label: 'GitHub',
-      role: 'about',
       click() {
-        shell.openExternal('https://github.com/aklein13/cp-clip/');
+        shell.openExternal('https://github.com/aklein13/cp-clip');
       },
     },
     {
