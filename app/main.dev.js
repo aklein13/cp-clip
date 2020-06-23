@@ -189,11 +189,10 @@ const connectAutoUpdater = () => {
     dialog.showMessageBox(dialogOpts, response => {
       if (response === 0) {
         clearInterval(clipboardWatcher);
-        setImmediate(() => {
-          app.removeAllListeners('window-all-closed');
-          clipboardWindow.close();
-          autoUpdater.quitAndInstall(false);
-        });
+        app.removeAllListeners('window-all-closed');
+        clipboardWindow.close();
+        autoUpdater.quitAndInstall();
+        app.exit();
       }
     });
   });
