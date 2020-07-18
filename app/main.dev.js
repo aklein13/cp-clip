@@ -111,6 +111,7 @@ const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
 const CLIPBOARD_WATCH_INTERVAL = 500;
+const CLEANUP_THRESHOLD = 10000;
 
 let openAtLogin = false;
 let updateAvailable = false;
@@ -466,7 +467,7 @@ const createTray = () => {
 Your current history has ${clipboardHistory.length} entries.\n
 Please confirm the load and choose if you want to override the current history.
 If you do not want to override, your current history will get merged with the backup.\n
-Merge will automatically remove all duplicates (with the same value and the same date).
+Merge will automatically remove all duplicates (entries with the same value and date).
 `,
                   checkboxChecked: false,
                 });
@@ -507,6 +508,81 @@ Your new history has  ${clipboardHistory.length} entries.`,
           },
         },
       ],
+    },
+    {
+      label: 'Cleanup',
+      async click() {
+        const bigEntries = [];
+        const remainingEntries = [];
+        let duplicateCount = 0;
+        const duplicateMap = {};
+        clipboardHistory.forEach(item => {
+          if (item.value.length > CLEANUP_THRESHOLD) {
+            bigEntries.push(item);
+          } else {
+            if (!duplicateMap[item.value]) {
+              remainingEntries.push(item);
+              duplicateMap[item.value] = true;
+            } else {
+              duplicateCount++;
+            }
+          }
+        });
+        if (clipboardHistory.length === remainingEntries.length) {
+          return dialog.showMessageBox({
+            type: 'info',
+            buttons: ['Close'],
+            title: 'cp-clip',
+            detail: `Nothing to cleanup.`,
+          });
+        }
+        const { response, checkboxChecked } = await dialog.showMessageBox(
+          null,
+          {
+            type: 'question',
+            buttons: ['Cancel', 'Yes, perform cleanup'],
+            defaultId: 2,
+            title: 'Cleanup',
+            message: 'Do you want to perform a cleanup?',
+            checkboxLabel: 'Save deleted big entries to a file',
+            detail: `Your search might slow down over time, especially if you often copy big entries (over ${CLEANUP_THRESHOLD} characters).\n
+This operation will remove big entries and duplicated entries. In case of duplicates only the newest entries will be kept.  
+Currently you have ${clipboardHistory.length} entries.\n
+To be remove remove:\n
+- ${bigEntries.length} big entries\n
+- ${duplicateCount} duplicates\n
+Alter the cleanup you will have ${remainingEntries.length} entries left.\n
+If you save the deleted big entries to a file you can later restore them using backup functionality.
+`,
+            checkboxChecked: true,
+          }
+        );
+        if (response) {
+          if (checkboxChecked) {
+            const now = moment();
+            const defaultPath = `cp-clip_cleanup_${now.format(
+              'YYYY-MM-DDTHH-mm-ss'
+            )}.json`;
+            const { filePath } = await dialog.showSaveDialog(null, {
+              title: 'Save deleted big entries',
+              defaultPath,
+              filters: fileFilters,
+            });
+            if (filePath) {
+              fs.writeFileSync(filePath, JSON.stringify(bigEntries));
+            }
+          }
+          clipboardHistory = remainingEntries;
+          cleanupHistory();
+          dialog.showMessageBox(null, {
+            type: 'info',
+            title: 'Success',
+            message: `Successfully removed ${bigEntries.length +
+              duplicateCount} entries.\n
+Your new history has  ${clipboardHistory.length} entries.`,
+          });
+        }
+      },
     },
     {
       type: 'separator',
