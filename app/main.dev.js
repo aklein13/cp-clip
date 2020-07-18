@@ -189,10 +189,16 @@ const connectAutoUpdater = () => {
     };
     dialog.showMessageBox(dialogOpts, response => {
       if (response === 0) {
+        // I give up, why can't autoUpdater.quitAndInstall just kill -9 the app?
         clearInterval(clipboardWatcher);
-        app.removeAllListeners('window-all-closed');
         clipboardWindow.close();
+        app.removeAllListeners('window-all-closed');
+        const browserWindows = BrowserWindow.getAllWindows();
+        browserWindows.forEach(browserWindow =>
+          browserWindow.removeAllListeners('close')
+        );
         autoUpdater.quitAndInstall();
+        app.quit();
         app.exit();
       }
     });
