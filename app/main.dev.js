@@ -546,19 +546,19 @@ Your new history has  ${clipboardHistory.length} entries.`,
             message: 'Do you want to perform a cleanup?',
             checkboxLabel: 'Save deleted big entries to a file',
             detail: `Your search might slow down over time, especially if you often copy big entries (over ${CLEANUP_THRESHOLD} characters).\n
-This operation will remove big entries and duplicated entries. In case of duplicates only the newest entries will be kept.  
-Currently you have ${clipboardHistory.length} entries.\n
-To be remove remove:\n
-- ${bigEntries.length} big entries\n
-- ${duplicateCount} duplicates\n
+This operation will remove big entries and duplicated entries. In case of duplicates only the newest entries will be kept.\n  
+Currently you have ${clipboardHistory.length} entries.
+To be removed:
+- ${bigEntries.length} big entries
+- ${duplicateCount} duplicates
 Alter the cleanup you will have ${remainingEntries.length} entries left.\n
 If you save the deleted big entries to a file you can later restore them using backup functionality.
 `,
-            checkboxChecked: true,
+            checkboxChecked: bigEntries.length,
           }
         );
         if (response) {
-          if (checkboxChecked) {
+          if (checkboxChecked && bigEntries.length) {
             const now = moment();
             const defaultPath = `cp-clip_cleanup_${now.format(
               'YYYY-MM-DDTHH-mm-ss'
