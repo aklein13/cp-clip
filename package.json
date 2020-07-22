@@ -90,7 +90,6 @@
   "keywords": [
     "electron",
     "react",
-    "flow",
     "sass",
     "webpack"
   ],
@@ -109,6 +108,7 @@
     "babel-preset-react-optimize": "^1.0.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
+    "browserslist-config-erb": "^0.0.1",
     "chalk": "^2.4.1",
     "concurrently": "^3.6.1",
     "cross-env": "^5.2.0",
@@ -119,8 +119,6 @@
     "electron-builder": "^22.3.6",
     "electron-rebuild": "^1.10.0",
     "express": "^4.16.2",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "extract-text-webpack-plugin": "^3.0.2",
     "fbjs-scripts": "^0.8.3",
     "file-loader": "^1.1.11",
     "flow-bin": "^0.84.0",
@@ -130,6 +128,7 @@
     "minimist": "^1.2.3",
     "node-sass": "^4.14.1",
     "npm-logical-tree": "^1.2.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "react-test-renderer": "^16.2.0",
     "rimraf": "^2.7.1",
     "sass-loader": "^7.1.0",
@@ -142,7 +141,6 @@
     "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1",
-    "browserslist-config-erb": "^0.0.1",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
