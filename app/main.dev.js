@@ -247,31 +247,8 @@ const openWindow = () => {
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
   // clipboardWindow.openDevTools();
 
-  globalShortcut.register('Up', () => server.send('up'));
-  globalShortcut.register('Shift + Up', () => server.send('up_10'));
-  globalShortcut.register('Down', () => server.send('down'));
-  globalShortcut.register('Shift + Down', () => server.send('down_10'));
-  globalShortcut.register('Shift + Enter', () => server.send('enter'));
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
-  globalShortcut.register('Backspace', () => server.send('backspace'));
-  globalShortcut.register('CommandOrControl + Backspace', () =>
-    server.send('clear')
-  );
-  globalShortcut.register('Delete', () => server.send('clear'));
-  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
-  globalShortcut.register('Space', () => server.send('space'));
-  globalShortcut.register('Plus', () => server.send('plus'));
-  server.send('clipboard_history', clipboardHistory);
-  ALPHABET.forEach(char => {
-    globalShortcut.register(char, () => sendInput(char));
-    globalShortcut.register(`Shift + ${char}`, () =>
-      sendInput(char.toUpperCase())
-    );
-  });
-  SPECIAL_CHARS.forEach(char =>
-    globalShortcut.register(char, () => sendInput(char))
-  );
   NUMBERS.forEach(char => {
     globalShortcut.register(char, () => sendInput(char));
     if (char !== '0') {
@@ -280,6 +257,29 @@ const openWindow = () => {
       );
     }
   });
+  ALPHABET.forEach(char => {
+    globalShortcut.register(char, () => sendInput(char));
+    globalShortcut.register(`Shift + ${char}`, () =>
+      sendInput(char.toUpperCase())
+    );
+  });
+  globalShortcut.register('Space', () => server.send('space'));
+  globalShortcut.register('Plus', () => server.send('plus'));
+  SPECIAL_CHARS.forEach(char =>
+    globalShortcut.register(char, () => sendInput(char))
+  );
+  server.send('clipboard_history', clipboardHistory);
+  globalShortcut.register('Up', () => server.send('up'));
+  globalShortcut.register('Shift + Up', () => server.send('up_10'));
+  globalShortcut.register('Down', () => server.send('down'));
+  globalShortcut.register('Shift + Down', () => server.send('down_10'));
+  globalShortcut.register('Shift + Enter', () => server.send('enter'));
+  globalShortcut.register('Backspace', () => server.send('backspace'));
+  globalShortcut.register('CommandOrControl + Backspace', () =>
+    server.send('clear')
+  );
+  globalShortcut.register('Delete', () => server.send('clear'));
+  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
   if (isMac) {
     globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
