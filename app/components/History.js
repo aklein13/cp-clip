@@ -29,6 +29,7 @@ export default class History extends Component<IProps, IState> {
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
+      console.log('received history', error, body.length);
       this.history = body;
       this.setState({ search: '', activeIndex: 0 });
       this.filterHistory('');
@@ -45,9 +46,10 @@ export default class History extends Component<IProps, IState> {
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
-    this.client.on('write_input', (_error, char) =>
-      this.changeSearch(this.state.search + char)
-    );
+    this.client.on('write_input', (_error, char) => {
+      console.log('write_input', _error, char);
+      this.changeSearch(this.state.search + char);
+    });
     this.client.on('backspace', () =>
       this.changeSearch(this.state.search.slice(0, -1))
     );
@@ -64,6 +66,7 @@ export default class History extends Component<IProps, IState> {
       )
     );
     this.client.on('paste_nth', (_error, body) => {
+      console.log('paste?', _error);
       const position = parseInt(body) || 1;
       const valueFromHistory = this.state.history[position - 1];
       if (!valueFromHistory) {

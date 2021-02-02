@@ -245,7 +245,7 @@ const openWindow = () => {
   clipboardWindow.showInactive();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating', 30);
-  // clipboardWindow.openDevTools();
+  clipboardWindow.openDevTools();
 
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
