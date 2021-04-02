@@ -261,10 +261,7 @@ const openWindow = () => {
   globalShortcut.register('CommandOrControl + Backspace', () =>
     server.send('clear')
   );
-  globalShortcut.register('Delete', () =>
-    server.send('delete_current_value'),
-  );
-  globalShortcut.register('CommandOrControl + Shift + Backspace', () =>
+  globalShortcut.registerAll(['Delete', 'CommandOrControl + Shift + Backspace'], () =>
     server.send('delete_current_value'),
   );
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
