@@ -261,7 +261,12 @@ const openWindow = () => {
   globalShortcut.register('CommandOrControl + Backspace', () =>
     server.send('clear')
   );
-  globalShortcut.register('Delete', () => server.send('clear'));
+  globalShortcut.register('Delete', () =>
+    server.send('delete_current_value'),
+  );
+  globalShortcut.register('CommandOrControl + Shift + Backspace', () =>
+    server.send('delete_current_value'),
+  );
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
   if (isMac) {
@@ -275,7 +280,15 @@ const openWindow = () => {
   }
 };
 
+const saveClipboardHistory = () => config.set('clipboardHistory', clipboardHistory);
+
 const sendInput = value => server.send('write_input', value);
+
+const deleteFromHistory = ({ value, date }) => {
+  clipboardHistory = clipboardHistory.filter(item => item.date !== date || item.value !== value);
+  server.send('clipboard_history_replace', clipboardHistory);
+  saveClipboardHistory();
+}
 
 const writeFromHistory = ({ value }) => {
   const isFocused = clipboardWindow.isFocused();
@@ -288,23 +301,9 @@ const writeFromHistory = ({ value }) => {
   }
 };
 
-const superPaste = () => {
-  if (!clipboardHistory.length) {
-    return;
-  }
-  robot.keyToggle('alt', 'up');
-  if (isMac) {
-    robot.keyToggle('command', 'up');
-  } else {
-    robot.keyToggle('control', 'up');
-  }
-  robot.typeString(clipboardHistory[0].value);
-};
-
 const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
-  // globalShortcut.register('CommandOrControl + Alt + V', superPaste);
 };
 
 const handleEscape = () => {
@@ -392,7 +391,7 @@ const cleanupHistory = () => {
     }
   });
   clipboardHistory = clipboardHistoryUnique;
-  config.set('clipboardHistory', clipboardHistory);
+  saveClipboardHistory();
 };
 
 const createTray = () => {
@@ -669,7 +668,7 @@ app.on('ready', async () => {
         date: now.format(DATE_FORMAT),
       });
     }
-    config.set('clipboardHistory', clipboardHistory);
+    saveClipboardHistory();
   }
 
   clipboardWatcher = setInterval(() => {
@@ -681,7 +680,7 @@ app.on('ready', async () => {
         value: clipboard.readText(),
         date: now.format(DATE_FORMAT),
       });
-      config.set('clipboardHistory', clipboardHistory);
+      saveClipboardHistory();
     }
   }, CLIPBOARD_WATCH_INTERVAL);
 
@@ -697,6 +696,7 @@ app.on('ready', async () => {
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
   server.on('value_from_history', event => writeFromHistory(event.body));
+  server.on('delete_value', event => deleteFromHistory(event.body));
 
   console.log('App is ready!');
 

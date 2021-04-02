@@ -29,16 +29,24 @@ export default class History extends Component<IProps, IState> {
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
-      this.history = body;
+      this.setHistory(body);
       this.setState({ search: '', activeIndex: 0 });
       this.filterHistory('');
     });
+    this.client.on('clipboard_history_replace', (error, body) => {
+      this.setHistory(body);
+      if (!body[this.state.activeIndex]) {
+        this.state.activeIndex = body.length - 1;
+      }
+      this.filterHistory(this.state.search);
+    });
     this.client.on('get_current_value', () => {
-      const foundValue = this.state.history[this.state.activeIndex] || {
-        value: '',
-      };
+      const foundValue = this.getCurrentValue();
       this.resetHistory();
       this.client.request('value_from_history', foundValue);
+    });
+    this.client.on('delete_current_value', () => {
+      this.client.request('delete_value', this.getCurrentValue());
     });
     this.client.on('escape', this.resetHistory);
     this.client.on('up', () => this.handleUp(1));
@@ -56,12 +64,7 @@ export default class History extends Component<IProps, IState> {
     this.client.on('plus', () => this.changeSearch(this.state.search + '+'));
     this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
     this.client.on('clear_last', () =>
-      this.changeSearch(
-        this.state.search
-          .split(' ')
-          .slice(0, -1)
-          .join(' ')
-      )
+      this.changeSearch(this.state.search.split(' ').slice(0, -1).join(' '))
     );
     this.client.on('paste_nth', (_error, body) => {
       const position = parseInt(body) || 1;
@@ -73,6 +76,16 @@ export default class History extends Component<IProps, IState> {
       this.changeSearch();
     });
   }
+
+  setHistory = (newHistory) => {
+    newHistory.forEach((item) => item.valueLower = item.value.toLowerCase());
+    this.history = newHistory;
+  }
+
+  getCurrentValue = () =>
+    this.state.history[this.state.activeIndex] || {
+      value: '',
+    };
 
   resetHistory = () => {
     this.setState({ search: '', activeIndex: 0 });
@@ -106,7 +119,7 @@ export default class History extends Component<IProps, IState> {
     const result = [];
     const historyLen = this.history.length;
     for (let i = 0; i < historyLen; i++) {
-      if (this.history[i].value.toLowerCase().indexOf(lowerCaseSearch) !== -1) {
+      if (this.history[i].valueLower.indexOf(lowerCaseSearch) !== -1) {
         result.push(this.history[i]);
       }
     }

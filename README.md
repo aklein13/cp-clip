@@ -11,8 +11,9 @@ Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-rea
 - `Control/Command` + `Shift` + `V` = Open/close clipboard history window
 - `Escape` = Close history window
 - `Enter` = Paste selected entry from history
-- `Control/Command` + [`1` - `9`] = Paste 1st - 9th element from history
 - `Arrow Up/Down` = Move 1 entry backwards/forwards
+- `Control/Command` + [`1` - `9`] = Paste 1st - 9th element from history
+- `Delete` or (`Control/Command` + `Shift` + `Backspace`) = Remove currently selected entry from history
 - `Shift` + `Arrow Up/Down` = Move 10 entries backwards/forwards
 - `Control/Command` + `Backspace` = Clear search
 - `Alt` + `Backspace` = Clear last word in search
