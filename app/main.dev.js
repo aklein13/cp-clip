@@ -187,11 +187,10 @@ const connectAutoUpdater = () => {
       detail:
         'A new version has been downloaded.\nRestart the application to apply the updates.',
     };
-    dialog.showMessageBox(dialogOpts, response => {
-      if (response === 0) {
-        autoUpdater.quitAndInstall();
-      }
-    });
+    const response = dialog.showMessageBoxSync(null, dialogOpts);
+    if (response === 0) {
+      autoUpdater.quitAndInstall();
+    }
   });
 };
 
@@ -497,6 +496,9 @@ Your new history has  ${clipboardHistory.length} entries.`,
     {
       label: 'Cleanup',
       async click() {
+        log.info('a tutaj?');
+        app.exit();
+        return
         const bigEntries = [];
         const remainingEntries = [];
         let duplicateCount = 0;
@@ -592,7 +594,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
       },
     },
     {
-      label: 'GitHub',
+      label: 'GITUWAHUB',
       click() {
         shell.openExternal('https://github.com/aklein13/cp-clip');
       },
