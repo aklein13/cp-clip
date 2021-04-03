@@ -496,9 +496,6 @@ Your new history has  ${clipboardHistory.length} entries.`,
     {
       label: 'Cleanup',
       async click() {
-        log.info('a tutaj?');
-        app.exit();
-        return
         const bigEntries = [];
         const remainingEntries = [];
         let duplicateCount = 0;
@@ -594,7 +591,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
       },
     },
     {
-      label: 'GITUWAHUB',
+      label: 'GitHub',
       click() {
         shell.openExternal('https://github.com/aklein13/cp-clip');
       },
