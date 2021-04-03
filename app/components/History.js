@@ -35,10 +35,7 @@ export default class History extends Component<IProps, IState> {
     });
     this.client.on('clipboard_history_replace', (error, body) => {
       this.setHistory(body);
-      if (!body[this.state.activeIndex]) {
-        this.state.activeIndex = body.length - 1;
-      }
-      this.filterHistory(this.state.search);
+      this.filterHistory(this.state.search, true);
     });
     this.client.on('get_current_value', () => {
       const foundValue = this.getCurrentValue();
@@ -111,7 +108,7 @@ export default class History extends Component<IProps, IState> {
     this.changeSearch();
   };
 
-  filterHistory = (search: string = '') => {
+  filterHistory = (search: string = '', checkIndex: boolean = false) => {
     if (!search) {
       return this.setState({ history: this.history });
     }
@@ -124,6 +121,9 @@ export default class History extends Component<IProps, IState> {
       }
     }
     this.setState({ history: result });
+    if (checkIndex && !result[this.state.activeIndex]) {
+      this.setState({ activeIndex: result.length - 1 });
+    }
   };
 
   handleUp = (amount: number) => {
