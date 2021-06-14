@@ -64,7 +64,7 @@ yarn package-all
 ```
 
 # TODO
+- Real html input to support all languages
 - Settings to change key binds
-- Allow for direct input on click
 - Show release notes in update prompt?
 - Some styling

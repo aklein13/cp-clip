@@ -45,68 +45,7 @@ const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
 let clipboardHistory = [];
-const ALPHABET = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-];
-const SPECIAL_CHARS = [
-  '~',
-  '!',
-  '"',
-  "'",
-  '?',
-  '.',
-  ';',
-  '[',
-  ']',
-  '\\',
-  ',',
-  '/',
-  '@',
-  '#',
-  '$',
-  '%',
-  '|',
-  '^',
-  '&',
-  '*',
-  '(',
-  ')',
-  '-',
-  '=',
-  '{',
-  '}',
-  ':',
-  '<',
-  '>',
-  '`',
-  '_',
-];
-const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
@@ -128,6 +67,7 @@ const clipboardWindowConfig = {
   title: 'Clipboard',
   center: true,
   alwaysOnTop: true,
+  skipTaskbar: true,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
   webPreferences: {
@@ -224,7 +164,7 @@ const openWindow = () => {
     clipboardWindow.setBounds(nextWindowBounds);
   }
 
-  clipboardWindow.showInactive();
+  clipboardWindow.show();
 
   clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
@@ -232,36 +172,24 @@ const openWindow = () => {
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
   NUMBERS.forEach(char => {
-    globalShortcut.register(char, () => sendInput(char));
     if (char !== '0') {
       globalShortcut.register(`CommandOrControl + ${char}`, () =>
         server.send('paste_nth', char)
       );
     }
   });
-  ALPHABET.forEach(char => {
-    globalShortcut.register(char, () => sendInput(char));
-    globalShortcut.register(`Shift + ${char}`, () =>
-      sendInput(char.toUpperCase())
-    );
-  });
-  globalShortcut.register('Space', () => server.send('space'));
-  globalShortcut.register('Plus', () => server.send('plus'));
-  SPECIAL_CHARS.forEach(char =>
-    globalShortcut.register(char, () => sendInput(char))
-  );
   server.send('clipboard_history', clipboardHistory);
   globalShortcut.register('Up', () => server.send('up'));
   globalShortcut.register('Shift + Up', () => server.send('up_10'));
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
-  globalShortcut.register('Backspace', () => server.send('backspace'));
   globalShortcut.register('CommandOrControl + Backspace', () =>
     server.send('clear')
   );
-  globalShortcut.registerAll(['Delete', 'CommandOrControl + Shift + Backspace'], () =>
-    server.send('delete_current_value'),
+  globalShortcut.registerAll(
+    ['Delete', 'CommandOrControl + Shift + Backspace'],
+    () => server.send('delete_current_value')
   );
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
@@ -276,18 +204,19 @@ const openWindow = () => {
   }
 };
 
-const saveClipboardHistory = () => config.set('clipboardHistory', clipboardHistory);
-
-const sendInput = value => server.send('write_input', value);
+const saveClipboardHistory = () =>
+  config.set('clipboardHistory', clipboardHistory);
 
 const deleteFromHistory = ({ value, date }) => {
-  clipboardHistory = clipboardHistory.filter(item => item.date !== date || item.value !== value);
+  clipboardHistory = clipboardHistory.filter(
+    item => item.date !== date || item.value !== value
+  );
   server.send('clipboard_history_replace', clipboardHistory);
   saveClipboardHistory();
-}
+};
 
 const writeFromHistory = ({ value }) => {
-  const isFocused = clipboardWindow.isFocused();
+  const isFocused = true;
   closeWindow(isFocused);
   clipboard.writeText(value);
   if (isMac && !isFocused) {

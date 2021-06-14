@@ -26,6 +26,7 @@ export default class History extends Component<IProps, IState> {
     };
     this.history = [];
     this.inputDebounce = null;
+    this.input = React.createRef();
 
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
@@ -39,8 +40,8 @@ export default class History extends Component<IProps, IState> {
     });
     this.client.on('get_current_value', () => {
       const foundValue = this.getCurrentValue();
-      this.resetHistory();
       this.client.request('value_from_history', foundValue);
+      this.resetHistory();
     });
     this.client.on('delete_current_value', () => {
       this.client.request('delete_value', this.getCurrentValue());
@@ -50,18 +51,15 @@ export default class History extends Component<IProps, IState> {
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
-    this.client.on('write_input', (_error, char) =>
-      this.changeSearch(this.state.search + char)
-    );
-    this.client.on('backspace', () =>
-      this.changeSearch(this.state.search.slice(0, -1))
-    );
     this.client.on('clear', () => this.changeSearch());
-    this.client.on('space', () => this.changeSearch(this.state.search + ' '));
-    this.client.on('plus', () => this.changeSearch(this.state.search + '+'));
     this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
     this.client.on('clear_last', () =>
-      this.changeSearch(this.state.search.split(' ').slice(0, -1).join(' '))
+      this.changeSearch(
+        this.state.search
+          .split(' ')
+          .slice(0, -1)
+          .join(' ')
+      )
     );
     this.client.on('paste_nth', (_error, body) => {
       const position = parseInt(body);
@@ -74,10 +72,14 @@ export default class History extends Component<IProps, IState> {
     });
   }
 
-  setHistory = (newHistory) => {
-    newHistory.forEach((item) => item.valueLower = item.value.toLowerCase());
-    this.history = newHistory;
+  componentDidMount() {
+    this.input.current.focus();
   }
+
+  setHistory = newHistory => {
+    newHistory.forEach(item => (item.valueLower = item.value.toLowerCase()));
+    this.history = newHistory;
+  };
 
   getCurrentValue = () =>
     this.state.history[this.state.activeIndex] || {
@@ -166,13 +168,19 @@ export default class History extends Component<IProps, IState> {
     );
   };
 
+  handleInput = e => this.changeSearch(e.target.value);
+
   render() {
     const { search } = this.state;
     return (
       <div id="history-container">
-        <p id="search-input" className={!search ? 'placeholder' : ''}>
-          {search || 'Search...'}
-        </p>
+        <input
+          id="search-input"
+          value={search}
+          onChange={this.handleInput}
+          ref={this.input}
+          placeholder={'Search...'}
+        />
         <List
           width={670}
           height={510}
