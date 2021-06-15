@@ -165,18 +165,15 @@ const openWindow = () => {
   }
 
   clipboardWindow.show();
-
   clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
 
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
   NUMBERS.forEach(char => {
-    if (char !== '0') {
-      globalShortcut.register(`CommandOrControl + ${char}`, () =>
-        server.send('paste_nth', char)
-      );
-    }
+    globalShortcut.register(`CommandOrControl + ${char}`, () =>
+      server.send('paste_nth', char)
+    );
   });
   server.send('clipboard_history', clipboardHistory);
   globalShortcut.register('Up', () => server.send('up'));
@@ -184,14 +181,10 @@ const openWindow = () => {
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
-  globalShortcut.register('CommandOrControl + Backspace', () =>
-    server.send('clear')
-  );
   globalShortcut.registerAll(
     ['Delete', 'CommandOrControl + Shift + Backspace'],
     () => server.send('delete_current_value')
   );
-  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
   if (isMac) {
     globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
@@ -216,14 +209,9 @@ const deleteFromHistory = ({ value, date }) => {
 };
 
 const writeFromHistory = ({ value }) => {
-  const isFocused = true;
-  closeWindow(isFocused);
+  closeWindow();
   clipboard.writeText(value);
-  if (isMac && !isFocused) {
-    robot.keyTap('v', 'command');
-  } else if (!isMac) {
-    robot.keyTap('v', 'control');
-  }
+  robot.keyTap('v', isMac ? 'command' : 'control');
 };
 
 const registerInitShortcuts = () => {
@@ -236,13 +224,9 @@ const handleEscape = () => {
   closeWindow();
 };
 
-const closeWindow = isFocused => {
-  if (isMac && isFocused) {
-    app.dock.show();
-    setTimeout(() => {
-      app.hide();
-      setTimeout(() => robot.keyTap('v', 'command'), 30);
-    }, 250);
+const closeWindow = () => {
+  if (isMac) {
+    app.hide();
   }
   globalShortcut.unregisterAll();
   if (!isMac) {
