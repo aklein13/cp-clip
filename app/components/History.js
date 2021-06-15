@@ -52,7 +52,16 @@ export default class History extends Component<IProps, IState> {
     this.client.on('up_10', () => this.handleUp(10));
     this.client.on('down', () => this.handleDown(1));
     this.client.on('down_10', () => this.handleDown(10));
+    this.client.on('clear', () => this.changeSearch());
     this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
+    this.client.on('clear_last', () =>
+      this.changeSearch(
+        this.state.search
+          .split(' ')
+          .slice(0, -1)
+          .join(' ')
+      )
+    );
     this.client.on('paste_nth', (_error, body) => {
       const position = parseInt(body);
       const valueFromHistory = this.state.history[position - 1];

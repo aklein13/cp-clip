@@ -181,10 +181,14 @@ const openWindow = () => {
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
+  globalShortcut.register('CommandOrControl + Backspace', () =>
+    server.send('clear')
+  );
   globalShortcut.registerAll(
     ['Delete', 'CommandOrControl + Shift + Backspace'],
     () => server.send('delete_current_value')
   );
+  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
   if (isMac) {
     globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
