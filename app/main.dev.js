@@ -92,21 +92,9 @@ const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  // require('electron-debug')();
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }
-
-// const installExtensions = async () => {
-//   const installer = require('electron-devtools-installer');
-//   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-//   const extensions = [
-//     'REACT_DEVELOPER_TOOLS',
-//   ];
-//   return Promise
-//     .all(extensions.map(name => installer.default(installer[name], forceDownload)))
-//     .catch(console.log);
-// };
 
 const connectAutoUpdater = () => {
   autoUpdater.autoDownload = false;
@@ -547,11 +535,6 @@ Your new history has  ${clipboardHistory.length} entries.`,
 };
 
 app.on('ready', async () => {
-  // Currently doesn't work on windows 10 dark mode
-  // if (isDebug) {
-  //   await installExtensions();
-  // }
-
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
@@ -603,7 +586,7 @@ app.on('ready', async () => {
   // if (isDebug) {
   //   const now = moment();
   //   const nowString = now.format(DATE_FORMAT);
-  //   clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
+  //   clipboardHistory = NUMBERS.map((value) => ({value, date: nowString}));
   // }
 
   server.configure(clipboardWindow.webContents);

@@ -32,7 +32,7 @@ export default class History extends Component<IProps, IState> {
     this.client = new Client();
     this.client.on('clipboard_history', (error, body) => {
       this.setHistory(body);
-      this.focusSearch();
+      this.resetFocusAndScroll();
       this.resetHistory();
     });
     this.client.on('clipboard_history_replace', (error, body) => {
@@ -73,10 +73,12 @@ export default class History extends Component<IProps, IState> {
     });
   }
 
-  focusSearch() {
-    this.input.current.focus();
+  resetFocusAndScroll = () => {
+    this.focusSearch();
     this.list.current.scrollToPosition(0);
-  }
+  };
+
+  focusSearch = () => this.input.current.focus();
 
   setHistory = newHistory => {
     newHistory.forEach(item => (item.valueLower = item.value.toLowerCase()));
@@ -175,7 +177,7 @@ export default class History extends Component<IProps, IState> {
   render() {
     const { search } = this.state;
     return (
-      <div id="history-container">
+      <div id="history-container" onClick={this.focusSearch}>
         <input
           id="search-input"
           value={search}
