@@ -45,68 +45,7 @@ const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
 let clipboardHistory = [];
-const ALPHABET = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-];
-const SPECIAL_CHARS = [
-  '~',
-  '!',
-  '"',
-  "'",
-  '?',
-  '.',
-  ';',
-  '[',
-  ']',
-  '\\',
-  ',',
-  '/',
-  '@',
-  '#',
-  '$',
-  '%',
-  '|',
-  '^',
-  '&',
-  '*',
-  '(',
-  ')',
-  '-',
-  '=',
-  '{',
-  '}',
-  ':',
-  '<',
-  '>',
-  '`',
-  '_',
-];
-const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
@@ -128,6 +67,7 @@ const clipboardWindowConfig = {
   title: 'Clipboard',
   center: true,
   alwaysOnTop: true,
+  skipTaskbar: true,
   vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
   webPreferences: {
@@ -152,21 +92,9 @@ const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  // require('electron-debug')();
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }
-
-// const installExtensions = async () => {
-//   const installer = require('electron-devtools-installer');
-//   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-//   const extensions = [
-//     'REACT_DEVELOPER_TOOLS',
-//   ];
-//   return Promise
-//     .all(extensions.map(name => installer.default(installer[name], forceDownload)))
-//     .catch(console.log);
-// };
 
 const connectAutoUpdater = () => {
   autoUpdater.autoDownload = false;
@@ -224,44 +152,29 @@ const openWindow = () => {
     clipboardWindow.setBounds(nextWindowBounds);
   }
 
-  clipboardWindow.showInactive();
-
+  clipboardWindow.show();
   clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
 
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
   NUMBERS.forEach(char => {
-    globalShortcut.register(char, () => sendInput(char));
-    if (char !== '0') {
-      globalShortcut.register(`CommandOrControl + ${char}`, () =>
-        server.send('paste_nth', char)
-      );
-    }
-  });
-  ALPHABET.forEach(char => {
-    globalShortcut.register(char, () => sendInput(char));
-    globalShortcut.register(`Shift + ${char}`, () =>
-      sendInput(char.toUpperCase())
+    globalShortcut.register(`CommandOrControl + ${char}`, () =>
+      server.send('paste_nth', char)
     );
   });
-  globalShortcut.register('Space', () => server.send('space'));
-  globalShortcut.register('Plus', () => server.send('plus'));
-  SPECIAL_CHARS.forEach(char =>
-    globalShortcut.register(char, () => sendInput(char))
-  );
   server.send('clipboard_history', clipboardHistory);
   globalShortcut.register('Up', () => server.send('up'));
   globalShortcut.register('Shift + Up', () => server.send('up_10'));
   globalShortcut.register('Down', () => server.send('down'));
   globalShortcut.register('Shift + Down', () => server.send('down_10'));
   globalShortcut.register('Shift + Enter', () => server.send('enter'));
-  globalShortcut.register('Backspace', () => server.send('backspace'));
   globalShortcut.register('CommandOrControl + Backspace', () =>
     server.send('clear')
   );
-  globalShortcut.registerAll(['Delete', 'CommandOrControl + Shift + Backspace'], () =>
-    server.send('delete_current_value'),
+  globalShortcut.registerAll(
+    ['Delete', 'CommandOrControl + Shift + Backspace'],
+    () => server.send('delete_current_value')
   );
   globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   globalShortcut.unregister('CommandOrControl + Shift + V');
@@ -276,25 +189,21 @@ const openWindow = () => {
   }
 };
 
-const saveClipboardHistory = () => config.set('clipboardHistory', clipboardHistory);
-
-const sendInput = value => server.send('write_input', value);
+const saveClipboardHistory = () =>
+  config.set('clipboardHistory', clipboardHistory);
 
 const deleteFromHistory = ({ value, date }) => {
-  clipboardHistory = clipboardHistory.filter(item => item.date !== date || item.value !== value);
+  clipboardHistory = clipboardHistory.filter(
+    item => item.date !== date || item.value !== value
+  );
   server.send('clipboard_history_replace', clipboardHistory);
   saveClipboardHistory();
-}
+};
 
 const writeFromHistory = ({ value }) => {
-  const isFocused = clipboardWindow.isFocused();
-  closeWindow(isFocused);
+  closeWindow();
   clipboard.writeText(value);
-  if (isMac && !isFocused) {
-    robot.keyTap('v', 'command');
-  } else if (!isMac) {
-    robot.keyTap('v', 'control');
-  }
+  robot.keyTap('v', isMac ? 'command' : 'control');
 };
 
 const registerInitShortcuts = () => {
@@ -307,13 +216,9 @@ const handleEscape = () => {
   closeWindow();
 };
 
-const closeWindow = isFocused => {
-  if (isMac && isFocused) {
-    app.dock.show();
-    setTimeout(() => {
-      app.hide();
-      setTimeout(() => robot.keyTap('v', 'command'), 30);
-    }, 250);
+const closeWindow = () => {
+  if (isMac) {
+    app.hide();
   }
   globalShortcut.unregisterAll();
   if (!isMac) {
@@ -630,11 +535,6 @@ Your new history has  ${clipboardHistory.length} entries.`,
 };
 
 app.on('ready', async () => {
-  // Currently doesn't work on windows 10 dark mode
-  // if (isDebug) {
-  //   await installExtensions();
-  // }
-
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
@@ -686,7 +586,7 @@ app.on('ready', async () => {
   // if (isDebug) {
   //   const now = moment();
   //   const nowString = now.format(DATE_FORMAT);
-  //   clipboardHistory = ALPHABET.map((value) => ({value, date: nowString}));
+  //   clipboardHistory = NUMBERS.map((value) => ({value, date: nowString}));
   // }
 
   server.configure(clipboardWindow.webContents);

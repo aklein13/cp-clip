@@ -65,6 +65,5 @@ yarn package-all
 
 # TODO
 - Settings to change key binds
-- Allow for direct input on click
 - Show release notes in update prompt?
 - Some styling

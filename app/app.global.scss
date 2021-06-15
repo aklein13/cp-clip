@@ -53,14 +53,18 @@ body {
 
   #search-input {
     word-break: break-all;
+    border: none;
     border-bottom: 1px solid $textLight;
     font-size: 16px;
-    padding: 0 3px 8px 8px;
+    padding: 13px 3px 9px 8px;
     min-height: 23px;
     user-select: none;
-    margin: 13px 0 0;
+    background: transparent;
+    outline: none;
+    caret-color: $textLight;
+    color: $text;
 
-    &.placeholder {
+    &::placeholder {
       color: $textLight;
     }
   }
