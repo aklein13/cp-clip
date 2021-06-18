@@ -44,7 +44,10 @@ const isLinux = process.platform === 'linux';
 const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
+// whole history
 let clipboardHistory = [];
+// only new entries
+let newClipboardHistory = null;
 const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
@@ -126,6 +129,19 @@ if (!isDebug) {
   connectAutoUpdater();
 }
 
+const sendHistory = () => {
+  if (newClipboardHistory) {
+    if (newClipboardHistory.length) {
+      server.send('clipboard_history_new', newClipboardHistory);
+      newClipboardHistory = [];
+    } else {
+      server.send('reset');
+    }
+  } else {
+    server.send('clipboard_history', clipboardHistory);
+  }
+};
+
 const openWindow = () => {
   if (isMac) {
     app.dock.hide();
@@ -158,12 +174,12 @@ const openWindow = () => {
 
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
-  NUMBERS.forEach(char => {
+  NUMBERS.forEach((char) => {
     globalShortcut.register(`CommandOrControl + ${char}`, () =>
       server.send('paste_nth', char)
     );
   });
-  server.send('clipboard_history', clipboardHistory);
+  sendHistory();
   globalShortcut.register('Up', () => server.send('up'));
   globalShortcut.register('Shift + Up', () => server.send('up_10'));
   globalShortcut.register('Down', () => server.send('down'));
@@ -197,6 +213,7 @@ const deleteFromHistory = ({ value, date }) => {
     item => item.date !== date || item.value !== value
   );
   server.send('clipboard_history_replace', clipboardHistory);
+  newClipboardHistory = [];
   saveClipboardHistory();
 };
 
@@ -292,6 +309,7 @@ const cleanupHistory = () => {
     }
   });
   clipboardHistory = clipboardHistoryUnique;
+  newClipboardHistory = null;
   saveClipboardHistory();
 };
 
@@ -572,10 +590,18 @@ app.on('ready', async () => {
     if (newClipboardValue && newClipboardValue !== previousClipboardValue) {
       previousClipboardValue = newClipboardValue;
       const now = moment();
-      clipboardHistory.unshift({
-        value: clipboard.readText(),
+      const newEntry = {
+        value: newClipboardValue,
         date: now.format(DATE_FORMAT),
+      };
+      if (!newClipboardHistory) {
+        newClipboardHistory = [];
+      }
+      newClipboardHistory.unshift({
+        ...newEntry,
+        valueLower: newEntry.value.toLowerCase(),
       });
+      clipboardHistory.unshift(newEntry);
       saveClipboardHistory();
     }
   }, CLIPBOARD_WATCH_INTERVAL);
