@@ -31,6 +31,7 @@ let googleTimeout = null;
 let googleInterval = null;
 let googlePreviousValue = null;
 let clipboardWatcher = null;
+let historySentAlready = false;
 
 const log = require('electron-log');
 const trayIcon =
@@ -130,7 +131,7 @@ if (!isDebug) {
 }
 
 const sendHistory = () => {
-  if (newClipboardHistory) {
+  if (newClipboardHistory && historySentAlready) {
     if (newClipboardHistory.length) {
       server.send('clipboard_history_new', newClipboardHistory);
       newClipboardHistory = [];
@@ -139,6 +140,8 @@ const sendHistory = () => {
     }
   } else {
     server.send('clipboard_history', clipboardHistory);
+    historySentAlready = true;
+    newClipboardHistory = null;
   }
 };
 
@@ -310,6 +313,7 @@ const cleanupHistory = () => {
   });
   clipboardHistory = clipboardHistoryUnique;
   newClipboardHistory = null;
+  historySentAlready = false;
   saveClipboardHistory();
 };
 
