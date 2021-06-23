@@ -30,8 +30,17 @@ export default class History extends Component<IProps, IState> {
     this.list = React.createRef();
 
     this.client = new Client();
+    this.client.on('reset', () => {
+      this.resetFocusAndScroll();
+      this.resetHistory();
+    });
     this.client.on('clipboard_history', (error, body) => {
       this.setHistory(body);
+      this.resetFocusAndScroll();
+      this.resetHistory();
+    });
+     this.client.on('clipboard_history_new', (error, body) => {
+      this.updateHistory(body);
       this.resetFocusAndScroll();
       this.resetHistory();
     });
@@ -83,6 +92,10 @@ export default class History extends Component<IProps, IState> {
   setHistory = newHistory => {
     newHistory.forEach(item => (item.valueLower = item.value.toLowerCase()));
     this.history = newHistory;
+  };
+
+  updateHistory = newHistory => {
+    this.history = [...newHistory, ...this.history];
   };
 
   getCurrentValue = () =>
