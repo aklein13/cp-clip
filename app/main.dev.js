@@ -212,7 +212,6 @@ const openWindow = () => {
 
 const saveClipboardHistory = (force=false) => {
   if (previousClipboardValue !== lastSavedClipboardValue || force) {
-    console.log('SAVE');
     config.set('clipboardHistory', clipboardHistory);
     lastSavedClipboardValue = previousClipboardValue;
   }
