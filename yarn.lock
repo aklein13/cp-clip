@@ -2582,10 +2582,9 @@ concurrently@^3.6.1:
     supports-color "^3.2.3"
     tree-kill "^1.1.0"
 
-conf@^1.0.0:
+conf@^1.0.0, conf@aklein13/conf#cp-clip-v1.4.0:
   version "1.4.0"
-  resolved "https://registry.yarnpkg.com/conf/-/conf-1.4.0.tgz#1ea66c9d7a9b601674a5bb9d2b8dc3c726625e67"
-  integrity sha512-bzlVWS2THbMetHqXKB8ypsXN4DQ/1qopGwNJi1eYbpwesJcd86FBjFciCQX/YwAhp9bM7NVnPFqZ5LpV7gP0Dg==
+  resolved "https://codeload.github.com/aklein13/conf/tar.gz/e37493bdddcedfe18da46c05656135bb56b7fb84"
   dependencies:
     dot-prop "^4.1.0"
     env-paths "^1.0.0"
