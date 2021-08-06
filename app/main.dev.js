@@ -45,7 +45,6 @@ const isLinux = process.platform === 'linux';
 const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
-let lastSavedClipboardValue = null;
 // whole history
 let clipboardHistory = [];
 // only new entries
@@ -54,7 +53,6 @@ const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
-const CLIPBOARD_SAVE_INTERVAL = 60 * 1000;
 const CLIPBOARD_WATCH_INTERVAL = 500;
 const CLEANUP_THRESHOLD = 10000;
 
@@ -179,7 +177,7 @@ const openWindow = () => {
 
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
-  NUMBERS.forEach((char) => {
+  NUMBERS.forEach(char => {
     globalShortcut.register(`CommandOrControl + ${char}`, () =>
       server.send('paste_nth', char)
     );
@@ -210,12 +208,8 @@ const openWindow = () => {
   }
 };
 
-const saveClipboardHistory = (force=false) => {
-  if (previousClipboardValue !== lastSavedClipboardValue || force) {
-    config.set('clipboardHistory', clipboardHistory);
-    lastSavedClipboardValue = previousClipboardValue;
-  }
-}
+const saveClipboardHistory = () =>
+  config.set('clipboardHistory', clipboardHistory);
 
 const deleteFromHistory = ({ value, date }) => {
   clipboardHistory = clipboardHistory.filter(
@@ -223,7 +217,7 @@ const deleteFromHistory = ({ value, date }) => {
   );
   server.send('clipboard_history_replace', clipboardHistory);
   newClipboardHistory = [];
-  saveClipboardHistory(true);
+  saveClipboardHistory();
 };
 
 const writeFromHistory = ({ value }) => {
@@ -320,7 +314,7 @@ const cleanupHistory = () => {
   clipboardHistory = clipboardHistoryUnique;
   newClipboardHistory = null;
   historySentAlready = false;
-  saveClipboardHistory(true);
+  saveClipboardHistory();
 };
 
 const createTray = () => {
@@ -562,8 +556,6 @@ Your new history has  ${clipboardHistory.length} entries.`,
   tray.setContextMenu(contextMenu);
 };
 
-app.on('quit', () => saveClipboardHistory(true));
-
 app.on('ready', async () => {
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
@@ -578,6 +570,7 @@ app.on('ready', async () => {
   }
 
   previousClipboardValue = clipboard.readText();
+
   if (previousClipboardValue) {
     const now = moment();
     if (clipboardHistory.length) {
@@ -586,14 +579,14 @@ app.on('ready', async () => {
           value: previousClipboardValue,
           date: now.format(DATE_FORMAT),
         });
-        saveClipboardHistory(true);
+        saveClipboardHistory();
       }
     } else {
       clipboardHistory.unshift({
         value: previousClipboardValue,
         date: now.format(DATE_FORMAT),
       });
-      saveClipboardHistory(true);
+      saveClipboardHistory();
     }
   }
 
@@ -614,6 +607,7 @@ app.on('ready', async () => {
         valueLower: newEntry.value.toLowerCase(),
       });
       clipboardHistory.unshift(newEntry);
+      saveClipboardHistory();
     }
   }, CLIPBOARD_WATCH_INTERVAL);
 
@@ -630,7 +624,6 @@ app.on('ready', async () => {
   registerInitShortcuts();
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
-  setInterval(saveClipboardHistory, CLIPBOARD_SAVE_INTERVAL);
 
   console.log('App is ready!');
 
