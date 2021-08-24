@@ -24,6 +24,7 @@ const robot = require('robotjs');
 
 const Config = require('electron-config');
 const config = new Config();
+const sessionConfig = new Config({ name: 'session_config' });
 
 let clipboardWindow = null;
 let tray = null;
@@ -45,10 +46,13 @@ const isLinux = process.platform === 'linux';
 const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
 let previousClipboardValue = null;
-// whole history
+// whole history (excluding current session)
 let clipboardHistory = [];
+// current session history
+let sessionClipboardHistory = [];
 // only new entries
 let newClipboardHistory = null;
+
 const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
@@ -139,7 +143,10 @@ const sendHistory = () => {
       server.send('reset');
     }
   } else {
-    server.send('clipboard_history', clipboardHistory);
+    server.send('clipboard_history', [
+      ...sessionClipboardHistory,
+      ...clipboardHistory,
+    ]);
     historySentAlready = true;
     newClipboardHistory = null;
   }
@@ -208,16 +215,28 @@ const openWindow = () => {
   }
 };
 
-const saveClipboardHistory = () =>
-  config.set('clipboardHistory', clipboardHistory);
+const saveSessionHistory = () =>
+  sessionConfig.set('clipboardHistory', sessionClipboardHistory);
+
+const saveHistory = () => config.set('clipboardHistory', clipboardHistory);
 
 const deleteFromHistory = ({ value, date }) => {
+  mergeSessionHistory(false);
   clipboardHistory = clipboardHistory.filter(
     item => item.date !== date || item.value !== value
   );
   server.send('clipboard_history_replace', clipboardHistory);
   newClipboardHistory = [];
-  saveClipboardHistory();
+  saveHistory();
+};
+
+const mergeSessionHistory = (shouldSaveHistory = true) => {
+  clipboardHistory = [...sessionClipboardHistory, ...clipboardHistory];
+  sessionClipboardHistory = [];
+  if (shouldSaveHistory) {
+    saveHistory();
+  }
+  saveSessionHistory();
 };
 
 const writeFromHistory = ({ value }) => {
@@ -248,12 +267,30 @@ const closeWindow = () => {
   setTimeout(registerInitShortcuts, 0);
 };
 
-const searchLastInGoogle = () =>
+const getLastClipboardValue = () => {
+  if (sessionClipboardHistory.length) {
+    return sessionClipboardHistory[0].value;
+  }
+  if (clipboardHistory.length) {
+    return clipboardHistory[0].value;
+  }
+  return '';
+};
+
+const searchLastInGoogle = () => {
+  closeWindow();
+  googleTimeout = null;
+  googleInterval = null;
+  const lastValues = getLastClipboardValue();
+  if (!lastValues) {
+    return;
+  }
   shell.openExternal(
     `https://www.google.com/search?q=${encodeURIComponent(
-      clipboardHistory[0].value
+      getLastClipboardValue()
     )}`
   );
+};
 
 const searchInGoogle = () => {
   if (googleTimeout || googleInterval) {
@@ -261,42 +298,25 @@ const searchInGoogle = () => {
   }
 
   // Interval to check if value in clipboard has changed.
-  googlePreviousValue = clipboardHistory.length
-    ? clipboardHistory[0].value
-    : '';
+  googlePreviousValue = getLastClipboardValue();
   googleInterval = setInterval(() => {
-    if (
-      clipboardHistory.length &&
-      googlePreviousValue !== clipboardHistory[0].value
-    ) {
+    if (googlePreviousValue !== getLastClipboardValue()) {
       clearTimeout(googleTimeout);
       clearInterval(googleInterval);
       searchLastInGoogle();
-      closeWindow();
-      googleTimeout = null;
-      googleInterval = null;
     }
   }, 50);
 
   // Copy to clipboard.
   // Clipboard watcher checks the value every 500ms.
-  if (isMac) {
-    robot.keyTap('c', 'command');
-  } else {
-    robot.keyTap('c', 'control');
-  }
+  robot.keyTap('c', isMac ? 'command' : 'control');
 
   // Fallback if value in clipboard didn't change. Uses last element from clipboard.
   // Also removes googleInterval watcher.
   googleTimeout = setTimeout(() => {
     clearInterval(googleInterval);
-    if (clipboardHistory.length) {
-      searchLastInGoogle();
-    }
-    closeWindow();
-    googleTimeout = null;
-    googleInterval = null;
-  }, 550);
+    searchLastInGoogle();
+  }, 650);
 };
 
 const cleanupHistory = () => {
@@ -314,7 +334,7 @@ const cleanupHistory = () => {
   clipboardHistory = clipboardHistoryUnique;
   newClipboardHistory = null;
   historySentAlready = false;
-  saveClipboardHistory();
+  saveHistory();
 };
 
 const createTray = () => {
@@ -337,6 +357,7 @@ const createTray = () => {
               filters: fileFilters,
             });
             if (filePath) {
+              mergeSessionHistory();
               fs.writeFileSync(filePath, JSON.stringify(clipboardHistory));
             }
           },
@@ -364,6 +385,7 @@ const createTray = () => {
                     'No valid history found in the backup.'
                   );
                 }
+                mergeSessionHistory();
                 const {
                   response,
                   checkboxChecked,
@@ -427,6 +449,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
         const remainingEntries = [];
         let duplicateCount = 0;
         const duplicateMap = {};
+        mergeSessionHistory();
         clipboardHistory.forEach(item => {
           if (item.value.length > CLEANUP_THRESHOLD) {
             bigEntries.push(item);
@@ -561,13 +584,15 @@ app.on('ready', async () => {
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
 
   const previousClipboardHistory = config.get('clipboardHistory');
+  const previousSessionHistory = sessionConfig.get('clipboardHistory');
   if (previousClipboardHistory && previousClipboardHistory.length) {
-    // Health check
-    clipboardHistory = previousClipboardHistory.filter(
-      item => item && item.value && item.date
-    );
-    cleanupHistory();
+    clipboardHistory = previousClipboardHistory;
   }
+  if (previousSessionHistory && previousSessionHistory.length) {
+    sessionClipboardHistory = previousSessionHistory;
+    mergeSessionHistory(false);
+  }
+  cleanupHistory();
 
   previousClipboardValue = clipboard.readText();
 
@@ -575,18 +600,18 @@ app.on('ready', async () => {
     const now = moment();
     if (clipboardHistory.length) {
       if (clipboardHistory[0].value !== previousClipboardValue) {
-        clipboardHistory.unshift({
+        sessionClipboardHistory.unshift({
           value: previousClipboardValue,
           date: now.format(DATE_FORMAT),
         });
-        saveClipboardHistory();
+        saveSessionHistory();
       }
     } else {
-      clipboardHistory.unshift({
+      sessionClipboardHistory.unshift({
         value: previousClipboardValue,
         date: now.format(DATE_FORMAT),
       });
-      saveClipboardHistory();
+      saveSessionHistory();
     }
   }
 
@@ -606,8 +631,8 @@ app.on('ready', async () => {
         ...newEntry,
         valueLower: newEntry.value.toLowerCase(),
       });
-      clipboardHistory.unshift(newEntry);
-      saveClipboardHistory();
+      sessionClipboardHistory.unshift(newEntry);
+      saveSessionHistory();
     }
   }, CLIPBOARD_WATCH_INTERVAL);
 
