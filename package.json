@@ -145,7 +145,6 @@
   },
   "dependencies": {
     "electron-config": "^1.0.0",
-    "conf": "aklein13/conf#cp-clip-v1.4.0",
     "electron-log": "^2.2.14",
     "electron-rpc": "^2.0.1",
     "electron-updater": "^4.2.0",
@@ -158,6 +157,9 @@
     "react-router-dom": "^4.2.2",
     "react-virtualized": "^9.21.2",
     "source-map-support": "^0.5.16"
+  },
+  "resolutions": {
+    "conf": "aklein13/conf#cp-clip-v1.4.0"
   },
   "browserslist": [
     "extends browserslist-config-erb"
