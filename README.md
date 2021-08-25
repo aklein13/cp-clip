@@ -5,6 +5,10 @@ A simple Electron clipboard manager.
 
 Based on [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
 
+# Updates
+The app supports automatic updates except for Mac.
+Updates do not work on unsigned applications and Mac certificates are paid.
+
 # Shortcuts
 ###### Type to search
 

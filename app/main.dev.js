@@ -652,7 +652,9 @@ app.on('ready', async () => {
 
   console.log('App is ready!');
 
-  if (!isDebug) {
+  // Exclude Mac because I need paid $$$ developer account to sign the app...
+  // Updates do not work for unsigned applications.
+  if (!isDebug && !isMac) {
     await autoUpdater.checkForUpdates();
     updateInterval = setInterval(
       () => autoUpdater.checkForUpdates(),
