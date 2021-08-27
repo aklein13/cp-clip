@@ -281,14 +281,12 @@ const searchLastInGoogle = () => {
   closeWindow();
   googleTimeout = null;
   googleInterval = null;
-  const lastValues = getLastClipboardValue();
-  if (!lastValues) {
+  const lastValue = getLastClipboardValue();
+  if (!lastValue) {
     return;
   }
   shell.openExternal(
-    `https://www.google.com/search?q=${encodeURIComponent(
-      getLastClipboardValue()
-    )}`
+    `https://www.google.com/search?q=${encodeURIComponent(lastValue)}`
   );
 };
 
