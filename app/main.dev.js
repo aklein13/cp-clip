@@ -339,6 +339,29 @@ const cleanupHistory = () => {
 
 const createTray = () => {
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
+  const updateItem = isMac
+    ? []
+    : [
+        {
+          label: 'Check updates',
+          async click() {
+            clearInterval(updateInterval);
+            await autoUpdater.checkForUpdates();
+            updateInterval = setInterval(
+              () => autoUpdater.checkForUpdates(),
+              UPDATE_INTERVAL
+            );
+            if (!updateAvailable) {
+              dialog.showMessageBox({
+                type: 'info',
+                buttons: ['Close'],
+                title: 'cp-clip',
+                detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
+              });
+            }
+          },
+        },
+      ];
   let menuTemplate = [
     {
       label: 'Backup',
@@ -521,25 +544,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
     {
       type: 'separator',
     },
-    {
-      label: 'Check updates',
-      async click() {
-        clearInterval(updateInterval);
-        await autoUpdater.checkForUpdates();
-        updateInterval = setInterval(
-          () => autoUpdater.checkForUpdates(),
-          UPDATE_INTERVAL
-        );
-        if (!updateAvailable) {
-          dialog.showMessageBox({
-            type: 'info',
-            buttons: ['Close'],
-            title: 'cp-clip',
-            detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
-          });
-        }
-      },
-    },
+    ...updateItem,
     {
       label: 'GitHub',
       click() {
