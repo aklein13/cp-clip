@@ -205,8 +205,7 @@ const openWindow = () => {
     ['Delete', 'CommandOrControl + Shift + Backspace'],
     () => server.send('delete_current_value')
   );
-  // TODO Check if I need it xD
-  // globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
+  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
   NUMBERS.forEach(number => {
     globalShortcut.register(`CommandOrControl + Alt + ${number}`, () =>
       server.send('get_current_value_macro', number)
