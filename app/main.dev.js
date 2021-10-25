@@ -259,7 +259,12 @@ const writeFromHistory = ({ value }) => {
 const writeFromMacro = number => {
   const macroValue = macros[number];
   if (macroValue) {
-    paste(macroValue);
+    if (isMac) {
+      paste(macroValue);
+    } else {
+      // Ehh why
+      setTimeout(() => paste(macroValue), 200);
+    }
   }
 };
 
