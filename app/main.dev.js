@@ -34,6 +34,9 @@ let googlePreviousValue = null;
 let clipboardWatcher = null;
 let historySentAlready = false;
 
+let macros = {};
+let macrosEnabled = true;
+
 const log = require('electron-log');
 const trayIcon =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACW0lEQVR42l2TyWvaQRTHR/ODQi8lqEhB7KEHD3pI0fZQGm8SevAs+Q+8eWpMKaVpLW0vYo6eSreLx9JCECGIkVIwKS49BNz3fd/3fkecjPYHw8y8ee8z3zfv/Qj94vE4qdVqZLFYiJbLJZnP5/cx27F/PhqNdrEns9mM0DObzbaa2+02ufkCgQB1ECOAzg+m02mt0Wj8hNNvBP8dDAZ3ACKTyURMg+kwmUwckEgkqFG8vv0MgR+YY6/XOwf0ZL3f8Xg81EYHB0SjUXq4ko/bL3HTAdZ3MagiG27/6HQ6BazvrW0km81yQCwWYwB6eFWv1w8Auuh2u48Ae9Xv9x248Rlsn9dKBKPRyAHJZHILUCgUniLQXyqVHg+Hw9cIdrRaLStsXxhArVZzQDqd3gLk83kKuCgWi5uAo/F4zAA7KpWKA1Kp1BYgl8utFEAJBZwgldNms3mEt/jKAEqlkgPgyAC0Cpd4oJUC2J+ghG8AcABg3QTI5fL/q8AVZDIZCvABtofeOEZZT9EXVqj5xgASiYQDIpHIJuAPOtMA5zPkbMPL/0CXvgTgGLYbBTKZjANCodBmH1xBtgENs9fpdGII/AWX2wC/RTk/MYBUKuUAl8u1MtJD5PkdN7/Dmra4gPdYdShSOkd/vGAAhULBAYIgkHK5LEbZ6HvsQ8UATofUGSWlgPeQX0Q3yoPBIEGVRDqdjgO8Xi/R6/UsDZrSIWpfhJJrjBR64BopPaxWq6RSqYjMZjPRaDQcQGvKfp5wOCyy2+3EYrHs+nw+g9vt3tdqtbeon9/vFzE/9oj/AOHffdTL+hwRAAAAAElFTkSuQmCC';
@@ -181,7 +184,7 @@ const openWindow = () => {
   clipboardWindow.show();
   clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
-
+  globalShortcut.unregisterAll();
   globalShortcut.register('Enter', () => server.send('get_current_value'));
   globalShortcut.register('Escape', handleEscape);
   NUMBERS.forEach(char => {
@@ -202,8 +205,13 @@ const openWindow = () => {
     ['Delete', 'CommandOrControl + Shift + Backspace'],
     () => server.send('delete_current_value')
   );
-  globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
-  globalShortcut.unregister('CommandOrControl + Shift + V');
+  // TODO Check if I need it xD
+  // globalShortcut.register('Alt + Backspace', () => server.send('clear_last'));
+  NUMBERS.forEach(number => {
+    globalShortcut.register(`CommandOrControl + Alt + ${number}`, () =>
+      server.send('get_current_value_macro', number)
+    );
+  });
   if (isMac) {
     globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
   } else {
@@ -239,15 +247,44 @@ const mergeSessionHistory = (shouldSaveHistory = true) => {
   saveSessionHistory();
 };
 
-const writeFromHistory = ({ value }) => {
-  closeWindow();
+const paste = value => {
   clipboard.writeText(value);
   robot.keyTap('v', isMac ? 'command' : 'control');
+};
+
+const writeFromHistory = ({ value }) => {
+  closeWindow();
+  paste(value);
+};
+
+const writeFromMacro = number => {
+  const macroValue = macros[number];
+  if (macroValue) {
+    paste(macroValue);
+  }
+};
+
+const saveMacros = () => {
+  config.set('macros', macros);
+  createTray();
+};
+
+const registerMacro = ({ value, number }) => {
+  macros[number] = value;
+  saveMacros();
 };
 
 const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
+  NUMBERS.forEach(number => {
+    const numberMacro = macros[number];
+    if (numberMacro && macrosEnabled) {
+      globalShortcut.register(`CommandOrControl + Alt + ${number}`, () =>
+        writeFromMacro(number)
+      );
+    }
+  });
 };
 
 const handleEscape = () => {
@@ -336,7 +373,16 @@ const cleanupHistory = () => {
 };
 
 const createTray = () => {
+  if (tray) {
+    tray.destroy();
+  }
   tray = new Tray(nativeImage.createFromDataURL(trayIcon));
+  const sortedMacros = Object.keys(macros)
+    .sort()
+    .reduce((acc, c) => {
+      acc[c] = macros[c];
+      return acc;
+    }, {});
   const updateItem = isMac
     ? []
     : [
@@ -361,6 +407,42 @@ const createTray = () => {
         },
       ];
   let menuTemplate = [
+    {
+      label: 'Macros',
+      type: 'submenu',
+      submenu: [
+        {
+          label: 'Enabled',
+          type: 'checkbox',
+          checked: macrosEnabled,
+          click() {
+            macrosEnabled = !macrosEnabled;
+            config.set('macrosEnabled', macrosEnabled);
+            globalShortcut.unregisterAll();
+            registerInitShortcuts();
+          },
+        },
+        {
+          label: 'Clear',
+          click() {
+            macros = {};
+            saveMacros();
+          },
+        },
+        {
+          label: 'List',
+          type: 'submenu',
+          submenu: Object.entries(sortedMacros).map(([number, value]) => ({
+            label: `${number}: ${value}`,
+            enabled: false,
+          })),
+          enabled: !!Object.keys(sortedMacros).length,
+        },
+      ],
+    },
+    {
+      type: 'separator',
+    },
     {
       label: 'Backup',
       type: 'submenu',
@@ -559,23 +641,18 @@ Your new history has  ${clipboardHistory.length} entries.`,
   ];
   if (!isLinux) {
     openAtLogin = app.getLoginItemSettings().openAtLogin;
-    menuTemplate.unshift(
-      {
-        label: 'Autostart',
-        type: 'checkbox',
-        checked: openAtLogin,
-        click() {
-          openAtLogin = !openAtLogin;
-          app.setLoginItemSettings({
-            ...app.getLoginItemSettings(),
-            openAtLogin,
-          });
-        },
+    menuTemplate.unshift({
+      label: 'Autostart',
+      type: 'checkbox',
+      checked: openAtLogin,
+      click() {
+        openAtLogin = !openAtLogin;
+        app.setLoginItemSettings({
+          ...app.getLoginItemSettings(),
+          openAtLogin,
+        });
       },
-      {
-        type: 'separator',
-      }
-    );
+    });
   }
   const contextMenu = Menu.buildFromTemplate(menuTemplate);
   tray.setToolTip('cp-clip');
@@ -585,6 +662,8 @@ Your new history has  ${clipboardHistory.length} entries.`,
 app.on('ready', async () => {
   clipboardWindow = new BrowserWindow(clipboardWindowConfig);
   clipboardWindow.loadURL(`file://${__dirname}/app.html#/settings`);
+  macros = config.get('macros') || {};
+  macrosEnabled = config.get('macrosEnabled', true);
 
   const previousClipboardHistory = config.get('clipboardHistory');
   const previousSessionHistory = sessionConfig.get('clipboardHistory');
@@ -652,6 +731,7 @@ app.on('ready', async () => {
   registerInitShortcuts();
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
+  server.on('value_for_macro', event => registerMacro(event.body));
 
   console.log('App is ready!');
 

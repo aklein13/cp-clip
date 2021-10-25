@@ -39,7 +39,7 @@ export default class History extends Component<IProps, IState> {
       this.resetFocusAndScroll();
       this.resetHistory();
     });
-     this.client.on('clipboard_history_new', (error, body) => {
+    this.client.on('clipboard_history_new', (error, body) => {
       this.updateHistory(body);
       this.resetFocusAndScroll();
       this.resetHistory();
@@ -53,6 +53,13 @@ export default class History extends Component<IProps, IState> {
       this.client.request('value_from_history', foundValue);
       this.resetHistory();
     });
+    this.client.on('get_current_value_macro', (error, body) => {
+      const foundValue = this.getCurrentValue();
+      this.client.request('value_for_macro', {
+        value: foundValue.value,
+        number: body,
+      });
+    });
     this.client.on('delete_current_value', () => {
       this.client.request('delete_value', this.getCurrentValue());
     });
@@ -63,14 +70,15 @@ export default class History extends Component<IProps, IState> {
     this.client.on('down_10', () => this.handleDown(10));
     this.client.on('clear', () => this.changeSearch());
     this.client.on('enter', () => this.changeSearch(this.state.search + '\n'));
-    this.client.on('clear_last', () =>
-      this.changeSearch(
-        this.state.search
-          .split(' ')
-          .slice(0, -1)
-          .join(' ')
-      )
-    );
+    // TODO Check if I need it xD
+    // this.client.on('clear_last', () =>
+    //   this.changeSearch(
+    //     this.state.search
+    //       .split(' ')
+    //       .slice(0, -1)
+    //       .join(' ')
+    //   )
+    // );
     this.client.on('paste_nth', (_error, body) => {
       const position = parseInt(body);
       const valueFromHistory = this.state.history[position - 1];
