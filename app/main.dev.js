@@ -263,7 +263,7 @@ const writeFromMacro = number => {
       paste(macroValue);
     } else {
       // Ehh why
-      setTimeout(() => paste(macroValue), 200);
+      setTimeout(() => paste(macroValue), 250);
     }
   }
 };
@@ -733,6 +733,7 @@ app.on('ready', async () => {
 
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
+  robot.setKeyboardDelay(0);
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
   server.on('value_for_macro', event => registerMacro(event.body));
