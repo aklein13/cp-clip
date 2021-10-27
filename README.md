@@ -24,6 +24,7 @@ Updates do not work on unsigned applications and Mac certificates are paid.
 - `Shift` + `Enter` = Search for Enter press (new lines)
 - `Control/Command` + `G` = Search selected (or last in clipboard) text in Google in default browser. Works everywhere.
 - `Control/Command` + `Alt` + [`1` - `9`] = Macros - on open window - set 1-9 macro. Use the shortcut again on when the window is closed to paste saved macro. 
+- `Control/Command` + `Alt` + `C` = Color picker - Get hex color at cursor position
 
 ## Instructions
 ##### [Download](https://github.com/aklein13/cp-clip/releases/latest) latest release for your platform

@@ -281,6 +281,7 @@ const registerMacro = ({ value, number }) => {
 const registerInitShortcuts = () => {
   globalShortcut.register('CommandOrControl + Shift + V', openWindow);
   globalShortcut.register('CommandOrControl + G', searchInGoogle);
+  globalShortcut.register('CommandOrControl + Alt + C', copyHexAtMousePosition);
   NUMBERS.forEach(number => {
     const numberMacro = macros[number];
     if (numberMacro && macrosEnabled) {
@@ -356,6 +357,12 @@ const searchInGoogle = () => {
     clearInterval(googleInterval);
     searchLastInGoogle();
   }, 650);
+};
+
+const copyHexAtMousePosition = () => {
+  const position = robot.getMousePos();
+  const color = `#${robot.getPixelColor(position.x, position.y)}`;
+  clipboard.writeText(color);
 };
 
 const cleanupHistory = () => {
