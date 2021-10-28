@@ -263,7 +263,7 @@ const writeFromMacro = number => {
       paste(macroValue);
     } else {
       // Ehh why
-      setTimeout(() => paste(macroValue), 250);
+      setTimeout(() => paste(macroValue), 300);
     }
   }
 };
