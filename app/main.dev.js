@@ -27,6 +27,8 @@ const config = new Config();
 const sessionConfig = new Config({ name: 'session_config' });
 
 let clipboardWindow = null;
+let cleanupWindow = null;
+
 let tray = null;
 let googleTimeout = null;
 let googleInterval = null;
@@ -131,6 +133,28 @@ const connectAutoUpdater = () => {
       autoUpdater.quitAndInstall();
     }
   });
+};
+
+const initCleanupWindow = () => {
+  cleanupWindow = new BrowserWindow({
+    show: false,
+    width: 700,
+    height: 320,
+    resizable: isDebug,
+    maximizable: isDebug,
+    fullscreenable: isDebug,
+    title: 'Cleanup',
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  cleanupWindow.loadURL(`file://${__dirname}/app.html#/cleanup`);
+};
+
+const openCleanupWindow = () => {
+  cleanupWindow.show();
+  cleanupWindow.focus();
+  cleanupWindow.on('closed', initCleanupWindow);
 };
 
 if (!isDebug) {
@@ -559,6 +583,7 @@ Your new history has  ${clipboardHistory.length} entries.`,
     {
       label: 'Cleanup',
       async click() {
+        return openCleanupWindow();
         const bigEntries = [];
         const remainingEntries = [];
         let duplicateCount = 0;
@@ -744,6 +769,7 @@ app.on('ready', async () => {
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
   server.on('value_for_macro', event => registerMacro(event.body));
+  initCleanupWindow();
 
   console.log('App is ready!');
 
