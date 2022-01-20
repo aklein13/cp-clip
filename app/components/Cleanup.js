@@ -18,8 +18,14 @@ export default class Cleanup extends Component<IProps, IState> {
     this.state = {
       selectedPeriod: 'months',
       periodNumber: null,
+      backup: false,
       startDate: '',
+      checkboxPeriod: false,
+      checkboxDuplicates: false,
+      checkboxBig: false,
+      loading: false,
     };
+    this.client = new Client();
   }
 
   renderPeriodSelect() {
@@ -61,16 +67,14 @@ export default class Cleanup extends Component<IProps, IState> {
     );
   }
 
-  cleanupPeriod = () => {};
-
-  cleanupBigDuplicates = () => {};
+  submitCleanup = () => this.client.request('cleanup', { ...this.state });
 
   render() {
     return (
       <div id="cleanup">
         <h3>
           Your search might slow down over time, especially if you often copy
-          big entries (over 10000 characters).
+          big entries.
         </h3>
         <div id="cleanup-split" className="d-flex">
           <div className="flex-1">
@@ -83,13 +87,17 @@ export default class Cleanup extends Component<IProps, IState> {
               </div>
               <div className="flex-1">{this.renderDateSelect()}</div>
             </div>
-            <button onClick={this.cleanupPeriod}>Cleanup</button>
           </div>
           <div className="flex-1">
-            <h5>Cleanup big and duplicated entries</h5>
-            <button onClick={this.cleanupBigDuplicates}>Cleanup</button>
+            <h5>Cleanup big entries</h5>
+            <p>Big entries (over 10000 characters) slow down the search.</p>
+          </div>
+          <div className="flex-1">
+            <h5>Cleanup duplicates</h5>
+            <p>You usually don't need the same value stored multiple times</p>
           </div>
         </div>
+        <button onClick={this.submitCleanup}>Cleanup</button>
       </div>
     );
   }

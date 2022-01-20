@@ -389,6 +389,51 @@ const copyHexAtMousePosition = () => {
   clipboard.writeText(color);
 };
 
+const cleanupDuplicates = () => {};
+
+const cleanupBig = () => {};
+
+const cleanupPeriod = parameters => {
+  let olderValueFound = false;
+  let startDate = null;
+  if (parameters.startDate) {
+    startDate = moment(parameters.startDate);
+  } else if (parameters.periodNumber) {
+    startDate = moment().subtract(
+      parameters.periodNumber,
+      parameters.selectedPeriod
+    );
+  } else {
+    return [];
+  }
+
+  //TODO
+  clipboardHistory.forEach(item => {
+    if (moment(item.date) < startDate) {
+      olderValueFound = true;
+    } else {
+    }
+  });
+  return [];
+};
+
+const handleCleanup = parameters => {
+  console.log(parameters);
+  mergeSessionHistory();
+
+  let remainingEntries = [];
+  if (parameters.checkboxPeriod) {
+    remainingEntries = cleanupPeriod(parameters);
+  }
+  if (parameters.checkboxDuplicates) {
+    cleanupDuplicates();
+  }
+  if (parameters.checkboxBig) {
+    cleanupBig();
+  }
+  cleanupHistory();
+};
+
 const cleanupHistory = () => {
   const clipboardHistoryUnique = [];
   clipboardHistory.forEach((element, index) => {
@@ -769,6 +814,7 @@ app.on('ready', async () => {
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
   server.on('value_for_macro', event => registerMacro(event.body));
+  server.on('cleanup', event => handleCleanup(event.body));
   initCleanupWindow();
 
   console.log('App is ready!');
