@@ -67,7 +67,10 @@ export default class Cleanup extends Component<IProps, IState> {
     );
   }
 
-  submitCleanup = () => this.client.request('cleanup', { ...this.state });
+  submitCleanup = () => {
+    this.setState({ loading: true });
+    this.client.request('cleanup', { ...this.state });
+  };
 
   render() {
     return (
@@ -125,7 +128,9 @@ export default class Cleanup extends Component<IProps, IState> {
           />
           Create backup
         </h5>
-        <button onClick={this.submitCleanup}>Cleanup</button>
+        <button onClick={this.submitCleanup} disabled={!this.loading}>
+          Cleanup
+        </button>
       </div>
     );
   }
