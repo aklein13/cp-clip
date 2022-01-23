@@ -66,7 +66,7 @@ export default class Cleanup extends Component<IProps, IState> {
   renderDateSelect() {
     return (
       <input
-        type="datetime-local"
+        type="date"
         value={this.state.startDate}
         onChange={e => this.handleFormChange(e, 'startDate')}
         disabled={!this.state.checkboxPeriod}
@@ -150,13 +150,17 @@ export default class Cleanup extends Component<IProps, IState> {
           />
           <h5>Create a backup</h5>
         </div>
-        <button
-          onClick={this.submitCleanup}
-          disabled={loading || !anyCheckboxSelected}
-          className="mt-2"
-        >
-          Cleanup
-        </button>
+        {loading ? (
+          <div className="loader mt-2" />
+        ) : (
+          <button
+            onClick={this.submitCleanup}
+            disabled={!anyCheckboxSelected}
+            className="mt-2"
+          >
+            Cleanup
+          </button>
+        )}
       </div>
     );
   }

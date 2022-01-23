@@ -140,9 +140,9 @@ const initCleanupWindow = () => {
   cleanupWindow = new BrowserWindow({
     show: false,
     width: 720,
-    height: 280,
-    resizable: isDebug,
-    maximizable: isDebug,
+    height: 270,
+    resizable: false,
+    maximizable: false,
     fullscreenable: false,
     title: 'Cleanup',
     webPreferences: {
