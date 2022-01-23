@@ -60,6 +60,7 @@ let newClipboardHistory = null;
 
 const NUMBERS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
+const OLD_DATE_FORMAT = 'HH:mm MM-DD-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
 const CLIPBOARD_WATCH_INTERVAL = 500;
@@ -138,11 +139,11 @@ const connectAutoUpdater = () => {
 const initCleanupWindow = () => {
   cleanupWindow = new BrowserWindow({
     show: false,
-    width: 715,
-    height: 320,
+    width: 720,
+    height: 280,
     resizable: isDebug,
     maximizable: isDebug,
-    fullscreenable: isDebug,
+    fullscreenable: false,
     title: 'Cleanup',
     webPreferences: {
       nodeIntegration: true,
@@ -412,23 +413,34 @@ const cleanupPeriod = (history, parameters) => {
   let startDate = null;
   if (parameters.startDate) {
     startDate = moment(parameters.startDate);
-  } else if (parameters.periodNumber) {
+  } else if (parseInt(parameters.periodNumber)) {
     startDate = moment().subtract(
-      parameters.periodNumber,
+      parseInt(parameters.periodNumber),
       parameters.selectedPeriod
     );
   } else {
-    return [];
+    dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Close'],
+      title: 'cp-clip',
+      detail: `Invalid period, skipping.`,
+    });
+    return history;
   }
 
   const remainingEntries = [];
   history.some(item => {
-    if (moment(item.date) < startDate) {
+    let date = moment(item.date, DATE_FORMAT);
+    // Old date format support
+    if (!date.isValid()) {
+      date = moment(item.date, OLD_DATE_FORMAT);
+      item.date = date.format(DATE_FORMAT);
+    }
+    if (date < startDate) {
       olderValueFound = true;
       return true;
-    } else {
-      remainingEntries.push(item);
     }
+    remainingEntries.push(item);
   });
   return remainingEntries;
 };
@@ -436,7 +448,7 @@ const cleanupPeriod = (history, parameters) => {
 const handleCleanup = async parameters => {
   console.log(parameters);
   mergeSessionHistory();
-  if (parameters.createBackup) {
+  if (parameters.backup) {
     await createBackup();
   }
 
@@ -490,17 +502,16 @@ const cleanupHistory = () => {
 };
 
 const sortHistory = () => {
-  const oldDateFormat = 'HH:mm MM-DD-YYYY';
   clipboardHistory = clipboardHistory.sort((a, b) => {
     let aDate = moment(a.date, DATE_FORMAT);
     let bDate = moment(b.date, DATE_FORMAT);
     // Old date format support
     if (!aDate.isValid()) {
-      aDate = moment(a.date, oldDateFormat);
+      aDate = moment(a.date, OLD_DATE_FORMAT);
       a.date = aDate.format(DATE_FORMAT);
     }
     if (!bDate.isValid()) {
-      bDate = moment(b.date, oldDateFormat);
+      bDate = moment(b.date, OLD_DATE_FORMAT);
       b.date = bDate.format(DATE_FORMAT);
     }
     return bDate.diff(aDate);
