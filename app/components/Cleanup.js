@@ -78,25 +78,53 @@ export default class Cleanup extends Component<IProps, IState> {
         </h3>
         <div id="cleanup-split" className="d-flex">
           <div className="flex-1">
-            <h5>Cleanup by date</h5>
-            <p>Remove all entries that are older then:</p>
             <div className="d-flex">
-              <div className="flex-1 d-flex">
-                <div className="flex-1">{this.renderPeriodInput()}</div>
-                <div className="flex-1">{this.renderPeriodSelect()}</div>
-              </div>
-              <div className="flex-1">{this.renderDateSelect()}</div>
+              <input
+                type="checkbox"
+                value={this.state.checkboxPeriod}
+                onChange={e => this.handleFormChange(e, 'checkboxPeriod')}
+              />
+              <h5>Cleanup by date</h5>
+            </div>
+            <p>Remove all entries that are older then:</p>
+            <div>{this.renderDateSelect()}</div>
+            <div>OR</div>
+            <div className="d-flex">
+              <div className="flex-1">{this.renderPeriodInput()}</div>
+              <div className="flex-1">{this.renderPeriodSelect()}</div>
             </div>
           </div>
           <div className="flex-1">
-            <h5>Cleanup big entries</h5>
+            <div className="d-flex">
+              <input
+                type="checkbox"
+                value={this.state.checkboxBig}
+                onChange={e => this.handleFormChange(e, 'checkboxBig')}
+              />
+              <h5>Cleanup big entries</h5>
+            </div>
             <p>Big entries (over 10000 characters) slow down the search.</p>
           </div>
           <div className="flex-1">
-            <h5>Cleanup duplicates</h5>
+            <div className="d-flex">
+              <input
+                type="checkbox"
+                value={this.state.checkboxDuplicates}
+                onChange={e => this.handleFormChange(e, 'checkboxDuplicates')}
+              />
+              <h5>Cleanup duplicates</h5>
+            </div>
             <p>You usually don't need the same value stored multiple times</p>
           </div>
         </div>
+        <h5>
+          <input
+            type="checkbox"
+            value={this.state.backup}
+            onChange={e => this.handleFormChange(e, 'backup')}
+          />
+          Create backup
+        </h5>
         <button onClick={this.submitCleanup}>Cleanup</button>
       </div>
     );
