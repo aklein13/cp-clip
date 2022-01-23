@@ -63,7 +63,7 @@ const DATE_FORMAT = 'HH:mm DD-MM-YYYY';
 
 const UPDATE_INTERVAL = 3 * 3600 * 1000;
 const CLIPBOARD_WATCH_INTERVAL = 500;
-const CLEANUP_THRESHOLD = 10000;
+const CLEANUP_THRESHOLD = 10001;
 
 let openAtLogin = false;
 let updateAvailable = false;
@@ -389,9 +389,23 @@ const copyHexAtMousePosition = () => {
   clipboard.writeText(color);
 };
 
-const cleanupDuplicates = history => {};
+const cleanupDuplicates = history => {
+  const foundValues = new Set();
+  const remainingEntries = [];
+  history.forEach(item => {
+    if (!foundValues.has(item.value)) {
+      remainingEntries.push(item);
+      foundValues.add(item.value);
+    }
+  });
+  return remainingEntries;
+};
 
-const cleanupBig = history => {};
+const cleanupBig = history => {
+  return history.filter(item => {
+    return item.value.length < CLEANUP_THRESHOLD;
+  });
+};
 
 const cleanupPeriod = (history, parameters) => {
   let olderValueFound = false;
@@ -407,16 +421,16 @@ const cleanupPeriod = (history, parameters) => {
     return [];
   }
 
-  const remainingHistory = [];
+  const remainingEntries = [];
   history.some(item => {
     if (moment(item.date) < startDate) {
       olderValueFound = true;
       return true;
     } else {
-      remainingHistory.push(item);
+      remainingEntries.push(item);
     }
   });
-  return remainingHistory;
+  return remainingEntries;
 };
 
 const handleCleanup = async parameters => {
@@ -426,19 +440,35 @@ const handleCleanup = async parameters => {
     await createBackup();
   }
 
-  let remainingHistory = clipboardHistory;
+  let remainingEntries = [...clipboardHistory];
   if (parameters.checkboxPeriod) {
-    remainingHistory = cleanupPeriod(remainingHistory, parameters);
+    remainingEntries = cleanupPeriod(remainingEntries, parameters);
   }
   if (parameters.checkboxDuplicates) {
-    remainingHistory = cleanupDuplicates(remainingHistory);
+    remainingEntries = cleanupDuplicates(remainingEntries);
   }
   if (parameters.checkboxBig) {
-    remainingHistory = cleanupBig(remainingHistory);
+    remainingEntries = cleanupBig(remainingEntries);
   }
 
-  clipboardHistory = remainingHistory;
+  const lengthDifference = clipboardHistory.length - remainingEntries.length;
+  if (!lengthDifference) {
+    return dialog.showMessageBox({
+      type: 'info',
+      buttons: ['Close'],
+      title: 'cp-clip',
+      detail: `Nothing to cleanup.`,
+    });
+  }
+  clipboardHistory = remainingEntries;
   cleanupHistory();
+  dialog.showMessageBox(null, {
+    type: 'info',
+    title: 'Success',
+    message: `Successfully removed ${lengthDifference} entries.\n
+Your new history has ${clipboardHistory.length} entries.`,
+  });
+  cleanupWindow.close();
 };
 
 const cleanupHistory = () => {
@@ -568,7 +598,7 @@ const createTray = () => {
       submenu: [
         {
           label: 'Create',
-          async click() {
+          click() {
             createBackup();
           },
         },
@@ -640,79 +670,8 @@ Your new history has  ${clipboardHistory.length} entries.`,
     },
     {
       label: 'Cleanup',
-      async click() {
-        return openCleanupWindow();
-        const bigEntries = [];
-        const remainingEntries = [];
-        let duplicateCount = 0;
-        const duplicateMap = {};
-        mergeSessionHistory();
-        clipboardHistory.forEach(item => {
-          if (item.value.length > CLEANUP_THRESHOLD) {
-            bigEntries.push(item);
-          } else {
-            if (!duplicateMap[item.value]) {
-              remainingEntries.push(item);
-              duplicateMap[item.value] = true;
-            } else {
-              duplicateCount++;
-            }
-          }
-        });
-        if (clipboardHistory.length === remainingEntries.length) {
-          return dialog.showMessageBox({
-            type: 'info',
-            buttons: ['Close'],
-            title: 'cp-clip',
-            detail: `Nothing to cleanup.`,
-          });
-        }
-        const { response, checkboxChecked } = await dialog.showMessageBox(
-          null,
-          {
-            type: 'question',
-            buttons: ['Cancel', 'Yes, perform cleanup'],
-            defaultId: 2,
-            title: 'Cleanup',
-            message: 'Do you want to perform a cleanup?',
-            checkboxLabel: 'Save deleted big entries to a file',
-            detail: `Your search might slow down over time, especially if you often copy big entries (over ${CLEANUP_THRESHOLD} characters).\n
-This operation will remove big entries and duplicated entries. In case of duplicates only the newest entries will be kept.\n  
-Currently you have ${clipboardHistory.length} entries.
-To be removed:
-- ${bigEntries.length} big entries
-- ${duplicateCount} duplicates
-Alter the cleanup you will have ${remainingEntries.length} entries left.\n
-If you save the deleted big entries to a file you can later restore them using backup functionality.
-`,
-            checkboxChecked: bigEntries.length,
-          }
-        );
-        if (response) {
-          if (checkboxChecked && bigEntries.length) {
-            const now = moment();
-            const defaultPath = `cp-clip_cleanup_${now.format(
-              'YYYY-MM-DDTHH-mm-ss'
-            )}.json`;
-            const { filePath } = await dialog.showSaveDialog(null, {
-              title: 'Save deleted big entries',
-              defaultPath,
-              filters: fileFilters,
-            });
-            if (filePath) {
-              fs.writeFileSync(filePath, JSON.stringify(bigEntries));
-            }
-          }
-          clipboardHistory = remainingEntries;
-          cleanupHistory();
-          dialog.showMessageBox(null, {
-            type: 'info',
-            title: 'Success',
-            message: `Successfully removed ${bigEntries.length +
-              duplicateCount} entries.\n
-Your new history has  ${clipboardHistory.length} entries.`,
-          });
-        }
+      click() {
+        openCleanupWindow();
       },
     },
     {
