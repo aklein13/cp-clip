@@ -138,7 +138,7 @@ const connectAutoUpdater = () => {
 const initCleanupWindow = () => {
   cleanupWindow = new BrowserWindow({
     show: false,
-    width: 700,
+    width: 715,
     height: 320,
     resizable: isDebug,
     maximizable: isDebug,
