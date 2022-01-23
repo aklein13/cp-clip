@@ -18,6 +18,7 @@ import Server from 'electron-rpc/server';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import moment from 'moment';
+import MenuBuilder from './menu';
 
 const fs = require('fs');
 const robot = require('robotjs');
@@ -446,7 +447,6 @@ const cleanupPeriod = (history, parameters) => {
 };
 
 const handleCleanup = async parameters => {
-  console.log(parameters);
   mergeSessionHistory();
   if (parameters.backup) {
     await createBackup();
@@ -465,12 +465,14 @@ const handleCleanup = async parameters => {
 
   const lengthDifference = clipboardHistory.length - remainingEntries.length;
   if (!lengthDifference) {
-    return dialog.showMessageBox({
+    dialog.showMessageBox({
       type: 'info',
       buttons: ['Close'],
       title: 'cp-clip',
       detail: `Nothing to cleanup.`,
     });
+    cleanupWindow.close();
+    return;
   }
   clipboardHistory = remainingEntries;
   cleanupHistory();
@@ -799,6 +801,8 @@ app.on('ready', async () => {
   server.on('value_for_macro', event => registerMacro(event.body));
   server.on('cleanup', event => handleCleanup(event.body));
   initCleanupWindow();
+  const menuBuilder = new MenuBuilder(cleanupWindow);
+  menuBuilder.buildMenu();
 
   console.log('App is ready!');
 
