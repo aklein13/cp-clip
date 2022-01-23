@@ -389,11 +389,11 @@ const copyHexAtMousePosition = () => {
   clipboard.writeText(color);
 };
 
-const cleanupDuplicates = () => {};
+const cleanupDuplicates = history => {};
 
-const cleanupBig = () => {};
+const cleanupBig = history => {};
 
-const cleanupPeriod = parameters => {
+const cleanupPeriod = (history, parameters) => {
   let olderValueFound = false;
   let startDate = null;
   if (parameters.startDate) {
@@ -407,30 +407,37 @@ const cleanupPeriod = parameters => {
     return [];
   }
 
-  //TODO
-  clipboardHistory.forEach(item => {
+  const remainingHistory = [];
+  history.some(item => {
     if (moment(item.date) < startDate) {
       olderValueFound = true;
+      return true;
     } else {
+      remainingHistory.push(item);
     }
   });
-  return [];
+  return remainingHistory;
 };
 
-const handleCleanup = parameters => {
+const handleCleanup = async parameters => {
   console.log(parameters);
   mergeSessionHistory();
+  if (parameters.createBackup) {
+    await createBackup();
+  }
 
-  let remainingEntries = [];
+  let remainingHistory = clipboardHistory;
   if (parameters.checkboxPeriod) {
-    remainingEntries = cleanupPeriod(parameters);
+    remainingHistory = cleanupPeriod(remainingHistory, parameters);
   }
   if (parameters.checkboxDuplicates) {
-    cleanupDuplicates();
+    remainingHistory = cleanupDuplicates(remainingHistory);
   }
   if (parameters.checkboxBig) {
-    cleanupBig();
+    remainingHistory = cleanupBig(remainingHistory);
   }
+
+  clipboardHistory = remainingHistory;
   cleanupHistory();
 };
 
@@ -450,6 +457,38 @@ const cleanupHistory = () => {
   newClipboardHistory = null;
   historySentAlready = false;
   saveHistory();
+};
+
+const sortHistory = () => {
+  const oldDateFormat = 'HH:mm MM-DD-YYYY';
+  clipboardHistory = clipboardHistory.sort((a, b) => {
+    let aDate = moment(a.date, DATE_FORMAT);
+    let bDate = moment(b.date, DATE_FORMAT);
+    // Old date format support
+    if (!aDate.isValid()) {
+      aDate = moment(a.date, oldDateFormat);
+      a.date = aDate.format(DATE_FORMAT);
+    }
+    if (!bDate.isValid()) {
+      bDate = moment(b.date, oldDateFormat);
+      b.date = bDate.format(DATE_FORMAT);
+    }
+    return bDate.diff(aDate);
+  });
+};
+
+const createBackup = async () => {
+  const now = moment();
+  const defaultPath = `cp-clip_${now.format('YYYY-MM-DDTHH-mm-ss')}.json`;
+  const { filePath } = await dialog.showSaveDialog(null, {
+    title: 'Create backup',
+    defaultPath,
+    filters: fileFilters,
+  });
+  if (filePath) {
+    mergeSessionHistory();
+    fs.writeFileSync(filePath, JSON.stringify(clipboardHistory));
+  }
 };
 
 const createTray = () => {
@@ -530,19 +569,7 @@ const createTray = () => {
         {
           label: 'Create',
           async click() {
-            const now = moment();
-            const defaultPath = `cp-clip_${now.format(
-              'YYYY-MM-DDTHH-mm-ss'
-            )}.json`;
-            const { filePath } = await dialog.showSaveDialog(null, {
-              title: 'Create backup',
-              defaultPath,
-              filters: fileFilters,
-            });
-            if (filePath) {
-              mergeSessionHistory();
-              fs.writeFileSync(filePath, JSON.stringify(clipboardHistory));
-            }
+            createBackup();
           },
         },
         {
@@ -591,22 +618,8 @@ Merge will automatically remove all duplicates (entries with the same value and 
                   if (checkboxChecked) {
                     clipboardHistory = validHistory;
                   } else {
-                    const oldDateFormat = 'HH:mm MM-DD-YYYY';
                     clipboardHistory.push(...validHistory);
-                    clipboardHistory = clipboardHistory.sort((a, b) => {
-                      let aDate = moment(a.date, DATE_FORMAT);
-                      let bDate = moment(b.date, DATE_FORMAT);
-                      // Old date format support
-                      if (!aDate.isValid()) {
-                        aDate = moment(a.date, oldDateFormat);
-                        a.date = aDate.format(DATE_FORMAT);
-                      }
-                      if (!bDate.isValid()) {
-                        bDate = moment(b.date, oldDateFormat);
-                        b.date = bDate.format(DATE_FORMAT);
-                      }
-                      return bDate.diff(aDate);
-                    });
+                    sortHistory();
                   }
                   cleanupHistory();
                   dialog.showMessageBox(null, {
