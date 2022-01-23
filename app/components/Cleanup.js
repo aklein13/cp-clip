@@ -33,6 +33,7 @@ export default class Cleanup extends Component<IProps, IState> {
       <select
         value={this.state.selectedPeriod}
         onChange={e => this.handleFormChange(e, 'selectedPeriod')}
+        disabled={!this.state.checkboxPeriod}
       >
         {selectOptions.map(option => (
           <option value={option} key={option}>
@@ -43,7 +44,11 @@ export default class Cleanup extends Component<IProps, IState> {
     );
   }
 
-  handleFormChange = (e, name) => this.setState({ [name]: e.target.value });
+  handleFormChange = (e, name) => {
+    const value =
+      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    this.setState({ [name]: value });
+  };
 
   renderPeriodInput() {
     return (
@@ -53,6 +58,7 @@ export default class Cleanup extends Component<IProps, IState> {
         max={100}
         value={this.state.periodNumber}
         onChange={e => this.handleFormChange(e, 'periodNumber')}
+        disabled={!this.state.checkboxPeriod}
       />
     );
   }
@@ -63,6 +69,7 @@ export default class Cleanup extends Component<IProps, IState> {
         type="datetime-local"
         value={this.state.startDate}
         onChange={e => this.handleFormChange(e, 'startDate')}
+        disabled={!this.state.checkboxPeriod}
       />
     );
   }
@@ -73,62 +80,81 @@ export default class Cleanup extends Component<IProps, IState> {
   };
 
   render() {
+    const {
+      checkboxPeriod,
+      checkboxBig,
+      checkboxDuplicates,
+      backup,
+      loading,
+      periodNumber,
+      startDate,
+    } = this.state;
+    const anyCheckboxSelected =
+      (checkboxPeriod && (startDate || periodNumber)) ||
+      checkboxBig ||
+      checkboxDuplicates;
+
     return (
       <div id="cleanup">
-        <h3>
-          Your search might slow down over time, especially if you often copy
-          big entries.
-        </h3>
         <div id="cleanup-split" className="d-flex">
           <div className="flex-1">
-            <div className="d-flex">
+            <div className="input-checkbox">
               <input
                 type="checkbox"
-                value={this.state.checkboxPeriod}
+                value={checkboxPeriod}
                 onChange={e => this.handleFormChange(e, 'checkboxPeriod')}
               />
               <h5>Cleanup by date</h5>
             </div>
             <p>Remove all entries that are older then:</p>
             <div>{this.renderDateSelect()}</div>
-            <div>OR</div>
-            <div className="d-flex">
+            <div className="mt-2 mb-2">OR</div>
+            <div className="input-checkbox">
               <div className="flex-1">{this.renderPeriodInput()}</div>
-              <div className="flex-1">{this.renderPeriodSelect()}</div>
+              <div className="flex-1 ml-2">{this.renderPeriodSelect()}</div>
             </div>
           </div>
+
           <div className="flex-1">
-            <div className="d-flex">
+            <div className="input-checkbox">
               <input
                 type="checkbox"
-                value={this.state.checkboxBig}
+                value={checkboxBig}
                 onChange={e => this.handleFormChange(e, 'checkboxBig')}
               />
               <h5>Cleanup big entries</h5>
             </div>
-            <p>Big entries (over 10000 characters) slow down the search.</p>
+            <p>
+              Big entries (over 10000 characters) slow down search the most.
+            </p>
           </div>
+
           <div className="flex-1">
-            <div className="d-flex">
+            <div className="input-checkbox">
               <input
                 type="checkbox"
-                value={this.state.checkboxDuplicates}
+                value={checkboxDuplicates}
                 onChange={e => this.handleFormChange(e, 'checkboxDuplicates')}
               />
               <h5>Cleanup duplicates</h5>
             </div>
-            <p>You usually don't need the same value stored multiple times</p>
+            <p>You usually don't need the same value stored multiple times.</p>
           </div>
         </div>
-        <h5>
+
+        <div className="input-checkbox mt-3">
           <input
             type="checkbox"
-            value={this.state.backup}
+            value={backup}
             onChange={e => this.handleFormChange(e, 'backup')}
           />
-          Create backup
-        </h5>
-        <button onClick={this.submitCleanup} disabled={!this.loading}>
+          <h5>Create a backup</h5>
+        </div>
+        <button
+          onClick={this.submitCleanup}
+          disabled={loading || !anyCheckboxSelected}
+          className="mt-2"
+        >
           Cleanup
         </button>
       </div>
