@@ -138,7 +138,11 @@ export default class Cleanup extends Component<IProps, IState> {
               />
               <h5>Cleanup duplicates</h5>
             </div>
-            <p>You usually don't need the same value stored multiple times.</p>
+            <p>
+              You usually don't need the same value stored multiple times.
+              <br />
+              Only the newest entries will be kept.
+            </p>
           </div>
         </div>
 
@@ -153,11 +157,7 @@ export default class Cleanup extends Component<IProps, IState> {
         {loading ? (
           <div className="loader mt-2" />
         ) : (
-          <button
-            onClick={this.submitCleanup}
-            disabled={!anyCheckboxSelected}
-            className="mt-2"
-          >
+          <button onClick={this.submitCleanup} disabled={!anyCheckboxSelected}>
             Cleanup
           </button>
         )}

@@ -18,7 +18,6 @@ import Server from 'electron-rpc/server';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import moment from 'moment';
-import MenuBuilder from './menu';
 
 const fs = require('fs');
 const robot = require('robotjs');
@@ -141,7 +140,7 @@ const initCleanupWindow = () => {
   cleanupWindow = new BrowserWindow({
     show: false,
     width: 720,
-    height: 270,
+    height: 248,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
@@ -151,6 +150,7 @@ const initCleanupWindow = () => {
     },
   });
   cleanupWindow.loadURL(`file://${__dirname}/app.html#/cleanup`);
+  cleanupWindow.setMenu(null);
 };
 
 const openCleanupWindow = () => {
@@ -669,7 +669,7 @@ Merge will automatically remove all duplicates (entries with the same value and 
                     type: 'info',
                     title: 'Success',
                     message: `Successfully restored the backup.\n
-Your new history has  ${clipboardHistory.length} entries.`,
+Your new history has ${clipboardHistory.length} entries.`,
                   });
                 }
               } catch (e) {
@@ -801,8 +801,6 @@ app.on('ready', async () => {
   server.on('value_for_macro', event => registerMacro(event.body));
   server.on('cleanup', event => handleCleanup(event.body));
   initCleanupWindow();
-  const menuBuilder = new MenuBuilder(cleanupWindow);
-  menuBuilder.buildMenu();
 
   console.log('App is ready!');
 

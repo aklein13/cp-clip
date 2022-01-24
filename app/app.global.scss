@@ -183,6 +183,15 @@ body {
     @extend .mb-2;
   }
 
+  button {
+    margin-top: 8px;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
   h5 {
     font-size: 16px;
     margin: 0 0 0 5px;

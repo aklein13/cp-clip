@@ -70,6 +70,6 @@ yarn package-all
 ```
 
 # TODO
+- Some styling (especially on cleanup window)
 - Settings to change key binds
 - Show release notes in update prompt?
-- Some styling
