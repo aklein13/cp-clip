@@ -113,23 +113,36 @@ if (isDebug) {
 const connectAutoUpdater = () => {
   autoUpdater.autoDownload = false;
   autoUpdater.logger = log;
-  autoUpdater.on('error', e => log.error(`update error ${e.message}`));
+  autoUpdater.on('error', e => log.error(`Update error ${e.message}`));
   autoUpdater.on('update-available', () => {
     updateAvailable = true;
-    autoUpdater.downloadUpdate();
+    if (isMac) {
+      const response = dialog.showMessageBoxSync(null, {
+        type: 'info',
+        buttons: ['Close', 'Download'],
+        title: 'cp-clip',
+        detail: 'Update is available to download from GitHub.',
+      });
+      if (response) {
+        shell.openExternal(
+          'https://github.com/aklein13/cp-clip/releases/latest'
+        );
+      }
+    } else {
+      autoUpdater.downloadUpdate();
+    }
   });
   autoUpdater.on('update-not-available', () => {
     updateAvailable = false;
   });
   autoUpdater.on('update-downloaded', () => {
-    const dialogOpts = {
+    const response = dialog.showMessageBoxSync(null, {
       type: 'info',
       buttons: ['Restart', 'Later'],
       title: 'Application Update',
       detail:
         'A new version has been downloaded.\nRestart the application to apply the updates.',
-    };
-    const response = dialog.showMessageBoxSync(null, dialogOpts);
+    });
     if (response === 0) {
       autoUpdater.quitAndInstall();
     }
@@ -545,29 +558,6 @@ const createTray = () => {
       acc[c] = macros[c];
       return acc;
     }, {});
-  const updateItem = isMac
-    ? []
-    : [
-        {
-          label: 'Check updates',
-          async click() {
-            clearInterval(updateInterval);
-            await autoUpdater.checkForUpdates();
-            updateInterval = setInterval(
-              () => autoUpdater.checkForUpdates(),
-              UPDATE_INTERVAL
-            );
-            if (!updateAvailable) {
-              dialog.showMessageBox({
-                type: 'info',
-                buttons: ['Close'],
-                title: 'cp-clip',
-                detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
-              });
-            }
-          },
-        },
-      ];
   let menuTemplate = [
     {
       label: 'Macros',
@@ -690,7 +680,27 @@ Your new history has ${clipboardHistory.length} entries.`,
     {
       type: 'separator',
     },
-    ...updateItem,
+    {
+      label: 'Check updates',
+      async click() {
+        clearInterval(updateInterval);
+        await autoUpdater.checkForUpdates();
+        if (!isMac) {
+          updateInterval = setInterval(
+            () => autoUpdater.checkForUpdates(),
+            UPDATE_INTERVAL
+          );
+        }
+        if (!updateAvailable) {
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: ['Close'],
+            title: 'cp-clip',
+            detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
+          });
+        }
+      },
+    },
     {
       label: 'GitHub',
       click() {
