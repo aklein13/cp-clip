@@ -46,6 +46,12 @@ body {
   display: flex;
 }
 
+.flex-center {
+  @extend .d-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .flex-1 {
   flex: 1;
 }
@@ -185,11 +191,25 @@ body {
   }
 
   button {
-    margin-top: 8px;
+    @extend .flex-center;
+    border: none;
+    margin-top: 10px;
     cursor: pointer;
+    background: darken($text, 10%);
+    appearance: none;
+    color: $mainColor;
+    border-radius: 3px;
+    padding: 3px 5px;
+    font-size: 14px;
+    text-transform: uppercase;
+
+    &:hover {
+      background: $text;
+    }
 
     &:disabled {
       cursor: not-allowed;
+      background: darken($text, 50%);
     }
   }
 

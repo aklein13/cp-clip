@@ -153,7 +153,7 @@ const initCleanupWindow = () => {
   cleanupWindow = new BrowserWindow({
     show: false,
     width: 720,
-    height: 248,
+    height: isMac ? 237 : 247,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
