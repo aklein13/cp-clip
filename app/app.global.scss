@@ -177,6 +177,7 @@ body {
   .input-checkbox {
     @extend .d-flex;
     align-items: center;
+    cursor: pointer;
   }
 
   p {

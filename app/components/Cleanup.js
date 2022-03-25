@@ -44,9 +44,8 @@ export default class Cleanup extends Component<IProps, IState> {
     );
   }
 
-  handleFormChange = (e, name) => {
-    const value =
-      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  handleFormChange = (value, name) => {
+    value = typeof value === 'object' ? value.target.value : value;
     this.setState({ [name]: value });
   };
 
@@ -79,12 +78,21 @@ export default class Cleanup extends Component<IProps, IState> {
     this.client.request('cleanup', { ...this.state });
   };
 
+  renderCheckbox = (key, label) => (
+    <div
+      className="input-checkbox"
+      onClick={() => this.handleFormChange(!this.state[key], key)}
+    >
+      <input type="checkbox" checked={this.state[key]} />
+      <h5>{label}</h5>
+    </div>
+  );
+
   render() {
     const {
       checkboxPeriod,
       checkboxBig,
       checkboxDuplicates,
-      backup,
       loading,
       periodNumber,
       startDate,
@@ -98,14 +106,7 @@ export default class Cleanup extends Component<IProps, IState> {
       <div id="cleanup">
         <div id="cleanup-split" className="d-flex">
           <div className="flex-1">
-            <div className="input-checkbox">
-              <input
-                type="checkbox"
-                value={checkboxPeriod}
-                onChange={e => this.handleFormChange(e, 'checkboxPeriod')}
-              />
-              <h5>Cleanup by date</h5>
-            </div>
+            {this.renderCheckbox('checkboxPeriod', 'Cleanup by date')}
             <p>Remove all entries that are older then:</p>
             <div>{this.renderDateSelect()}</div>
             <div className="mt-2 mb-2">OR</div>
@@ -116,28 +117,14 @@ export default class Cleanup extends Component<IProps, IState> {
           </div>
 
           <div className="flex-1">
-            <div className="input-checkbox">
-              <input
-                type="checkbox"
-                value={checkboxBig}
-                onChange={e => this.handleFormChange(e, 'checkboxBig')}
-              />
-              <h5>Cleanup big entries</h5>
-            </div>
+            {this.renderCheckbox('checkboxBig', 'Cleanup big entries')}
             <p>
               Big entries (over 10000 characters) slow down search the most.
             </p>
           </div>
 
           <div className="flex-1">
-            <div className="input-checkbox">
-              <input
-                type="checkbox"
-                value={checkboxDuplicates}
-                onChange={e => this.handleFormChange(e, 'checkboxDuplicates')}
-              />
-              <h5>Cleanup duplicates</h5>
-            </div>
+            {this.renderCheckbox('checkboxDuplicates', 'Cleanup duplicates')}
             <p>
               You usually don't need the same value stored multiple times.
               <br />
@@ -146,13 +133,8 @@ export default class Cleanup extends Component<IProps, IState> {
           </div>
         </div>
 
-        <div className="input-checkbox mt-3">
-          <input
-            type="checkbox"
-            value={backup}
-            onChange={e => this.handleFormChange(e, 'backup')}
-          />
-          <h5>Create a backup</h5>
+        <div className="mt-3">
+          {this.renderCheckbox('backup', 'Create a backup')}
         </div>
         {loading ? (
           <div className="loader mt-2" />

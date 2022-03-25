@@ -170,6 +170,7 @@ const openCleanupWindow = () => {
   cleanupWindow.show();
   cleanupWindow.focus();
   cleanupWindow.on('closed', initCleanupWindow);
+  // cleanupWindow.openDevTools();
 };
 
 if (!isDebug) {
