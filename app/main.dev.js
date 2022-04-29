@@ -252,11 +252,11 @@ const openWindow = () => {
     );
   });
   if (isMac) {
-    globalShortcut.register('CommandOrControl + Shift + V', closeWindow);
+    globalShortcut.register('Command + Shift + V', closeWindow);
   } else {
     setTimeout(
       () =>
-        globalShortcut.register('CommandOrControl + Shift + V', closeWindow),
+        globalShortcut.register('Control + Shift + V', closeWindow),
       500
     );
   }
@@ -807,6 +807,10 @@ app.on('ready', async () => {
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
   robot.setKeyboardDelay(0);
+  clipboardWindow.on('close', (e) => {
+    e.preventDefault();
+    closeWindow();
+  });
   server.on('value_from_history', event => writeFromHistory(event.body));
   server.on('delete_value', event => deleteFromHistory(event.body));
   server.on('value_for_macro', event => registerMacro(event.body));
