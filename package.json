@@ -143,7 +143,6 @@
   },
   "dependencies": {
     "electron-config": "^1.0.0",
-    "electron-log": "^2.2.14",
     "electron-rpc": "^2.0.1",
     "electron-updater": "^4.2.0",
     "history": "^4.7.2",
