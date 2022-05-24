@@ -47,6 +47,7 @@ const server = new Server();
 // const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
+const isWindows = process.platform === 'win32';
 
 const fileFilters = [{ name: 'Backup', extensions: ['json'] }];
 
@@ -199,13 +200,13 @@ const openWindow = () => {
   if (isMac) {
     app.dock.hide();
   }
-
+let nextWindowBounds = {};
   if (!isLinux) {
     const activeScreen = screen.getDisplayNearestPoint(
       screen.getCursorScreenPoint()
     );
     const activeScreenBounds = activeScreen.bounds;
-    const nextWindowBounds = {
+    nextWindowBounds = {
       x:
         activeScreenBounds.x +
         activeScreenBounds.width / 2 -
@@ -222,6 +223,11 @@ const openWindow = () => {
   }
 
   clipboardWindow.show();
+  // On Windows you can't set bounds before the window is shown
+  if (isWindows) {
+    clipboardWindow.setBounds(nextWindowBounds);
+  }
+
   clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
   globalShortcut.unregisterAll();
