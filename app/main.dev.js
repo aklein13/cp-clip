@@ -707,7 +707,10 @@ Your new history has ${clipboardHistory.length} entries.`,
     },
     {
       label: 'Quit',
-      role: 'quit',
+      click() {
+        clipboardWindow.removeAllListeners();
+        app.quit();
+      },
     },
   ];
   if (!isLinux) {
@@ -802,6 +805,7 @@ app.on('ready', async () => {
   registerInitShortcuts();
   robot.setKeyboardDelay(0);
   clipboardWindow.on('close', (e) => {
+    console.log('close?', e );
     e.preventDefault();
     closeWindow();
   });
