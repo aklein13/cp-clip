@@ -37,16 +37,6 @@
       "main.prod.js.map",
       "package.json"
     ],
-    "mac": {
-      "target": {
-        "target": "default",
-        "arch": [
-          "arm64",
-          "x64"
-        ]
-      },
-      "gatekeeperAssess": false
-    },
     "dmg": {
       "contents": [
         {
