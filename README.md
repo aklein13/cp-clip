@@ -31,9 +31,11 @@ Updates do not work on unsigned applications and Mac certificates are paid.
 ### Windows
 1. Download <i>cp-clip-setup-x.x.x.exe</i>
 2. Install it
-### Mac
-1. Download <i>cp-clip-x.x.x.dmg</i>
-2. Run and drag it to your Applications
+### macOS
+Download <i>cp-clip-x.x.x.dmg</i> and follow [macOS guide](/docs/macOS.md).
+
+Right now macOS version is built for Intel
+chips, but it should work on M1 chip anyway. I will try to build M1 version in the future for better performance. 
 #### Linux
 ##### The latest version does not work at the moment. The latest working version is 0.5.1.
 1. Download https://github.com/aklein13/cp-clip/releases/download/v0.5.1/cp-clip-0.5.1.AppImage
@@ -44,7 +46,7 @@ Updates do not work on unsigned applications and Mac certificates are paid.
 
 Or you can just `chmod +x` it.
 
-If after going though above steps and running the application nothing happens, 
+If after going through above steps and running the application nothing happens, 
 you most likely need to install `libgtk2.0-0` package manually.
 In order to do that open your terminal and run `sudo apt-get install libgtk2.0-0`
 
