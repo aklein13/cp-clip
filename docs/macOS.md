@@ -35,7 +35,7 @@ https://youtu.be/Z602OcyyfSE
 12. (optional) If you want to use Color Picker functionality repeat the step 10 and 11 for Screen Recording permission.
 
 #### Notes
-After each update you need to re-do everything.
+After every update you need to re-do everything.
 
 If you want to update after a fresh install, permissions set in step 9 and 10 will persist, but you will need to remove
 and re-add them to make them work.
