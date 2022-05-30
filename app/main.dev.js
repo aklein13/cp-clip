@@ -186,9 +186,6 @@ const sendHistory = () => {
 
 
 const openWindow = () => {
-  if (isMac) {
-    app.dock.hide();
-  }
   const activeScreen = screen.getDisplayNearestPoint(
     screen.getCursorScreenPoint()
   );
@@ -821,6 +818,9 @@ app.on('ready', async () => {
   server.on('value_for_macro', event => registerMacro(event.body));
   server.on('cleanup', event => handleCleanup(event.body));
   initCleanupWindow();
+  if (isDebug && isMac) {
+    app.dock.hide();
+  }
 
   console.log('App is ready!');
 

@@ -37,6 +37,19 @@
       "main.prod.js.map",
       "package.json"
     ],
+    "mac": {
+      "target": {
+        "target": "default",
+        "arch": [
+          "x64"
+        ]
+      },
+      "type": "distribution",
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "gatekeeperAssess": false
+    },
     "dmg": {
       "contents": [
         {
