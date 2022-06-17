@@ -41,6 +41,7 @@
       "target": {
         "target": "default",
         "arch": [
+          "arm64",
           "x64"
         ]
       },
@@ -128,9 +129,9 @@
     "cross-spawn": "^6.0.4",
     "css-loader": "^3.4.2",
     "detect-port": "^1.2.2",
-    "electron": "^7.2.4",
+    "electron": "^12.2.3",
     "electron-builder": "^23.0.3",
-    "electron-rebuild": "^1.10.0",
+    "electron-rebuild": "^3.2.7",
     "express": "^4.16.2",
     "fbjs-scripts": "^0.8.3",
     "file-loader": "^1.1.11",
