@@ -81,10 +81,10 @@ const clipboardWindowConfig = {
   center: true,
   alwaysOnTop: true,
   skipTaskbar: true,
-  vibrancy: 'appearance-based',
   visibleOnAllWorkspaces: true,
   webPreferences: {
     nodeIntegration: true,
+    contextIsolation: false,
   },
 };
 
@@ -149,6 +149,7 @@ const initCleanupWindow = () => {
     title: 'Cleanup',
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
     },
   });
   cleanupWindow.loadURL(`file://${__dirname}/app.html#/cleanup`);
@@ -221,7 +222,6 @@ const openWindow = () => {
     } catch (e) {}
   }
 
-  clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
   // clipboardWindow.openDevTools();
   globalShortcut.unregisterAll();
   globalShortcut.register('Enter', () => server.send('get_current_value'));
@@ -804,6 +804,11 @@ app.on('ready', async () => {
   //   const nowString = now.format(DATE_FORMAT);
   //   clipboardHistory = NUMBERS.map((value) => ({value, date: nowString}));
   // }
+  clipboardWindow.setVisibleOnAllWorkspaces(true, {
+    visibleOnFullScreen: true,
+    skipTransformProcessType: true,
+  });
+  clipboardWindow.setAlwaysOnTop(true, 'floating', 100);
 
   server.configure(clipboardWindow.webContents);
   registerInitShortcuts();
