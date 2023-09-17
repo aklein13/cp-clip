@@ -416,9 +416,19 @@ const cleanupDuplicates = history => {
   return remainingEntries;
 };
 
-const cleanupBig = history => {
+const cleanupBig = (history, { threshold }) => {
+  threshold = parseInt(threshold);
+  if (!threshold) {
+    dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Close'],
+      title: 'cp-clip',
+      detail: `Invalid threshold, skipping.`,
+    });
+    return history;
+  }
   return history.filter(item => {
-    return item.value.length < CLEANUP_THRESHOLD;
+    return item.value.length < threshold;
   });
 };
 
@@ -473,7 +483,7 @@ const handleCleanup = async parameters => {
     remainingEntries = cleanupDuplicates(remainingEntries);
   }
   if (parameters.checkboxBig) {
-    remainingEntries = cleanupBig(remainingEntries);
+    remainingEntries = cleanupBig(remainingEntries, parameters);
   }
 
   const lengthDifference = clipboardHistory.length - remainingEntries.length;

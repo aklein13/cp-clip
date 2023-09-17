@@ -24,6 +24,7 @@ export default class Cleanup extends Component<IProps, IState> {
       checkboxDuplicates: false,
       checkboxBig: false,
       loading: false,
+      threshold: 10000,
     };
     this.client = new Client();
   }
@@ -69,6 +70,18 @@ export default class Cleanup extends Component<IProps, IState> {
         value={this.state.startDate}
         onChange={e => this.handleFormChange(e, 'startDate')}
         disabled={!this.state.checkboxPeriod}
+      />
+    );
+  }
+
+  renderThresholdInput() {
+    return (
+      <input
+        type='number'
+        min={0}
+        value={this.state.threshold}
+        onChange={e => this.handleFormChange(e, 'threshold')}
+        disabled={!this.state.checkboxBig}
       />
     );
   }
@@ -121,6 +134,8 @@ export default class Cleanup extends Component<IProps, IState> {
             <p>
               Big entries (over 10000 characters) slow down search the most.
             </p>
+            <p>Remove entries bigger then:</p>
+            <div>{this.renderThresholdInput()}</div>
           </div>
 
           <div className="flex-1">
