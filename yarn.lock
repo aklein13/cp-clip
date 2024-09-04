@@ -2726,7 +2726,7 @@ concurrently@^3.6.1:
 
 conf@^1.0.0, conf@aklein13/conf#cp-clip-v1.4.0:
   version "1.4.0"
-  resolved "https://codeload.github.com/aklein13/conf/tar.gz/e37493bdddcedfe18da46c05656135bb56b7fb84"
+  resolved "https://codeload.github.com/aklein13/conf/tar.gz/950bdce92fbdb759e733e46559fe56bb0132adef"
   dependencies:
     dot-prop "^4.1.0"
     env-paths "^1.0.0"
