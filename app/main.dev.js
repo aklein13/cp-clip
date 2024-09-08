@@ -110,7 +110,7 @@ const connectAutoUpdater = () => {
         type: 'info',
         buttons: ['Close', 'Download'],
         title: 'cp-clip',
-        detail: 'Update is available to download from GitHub.',
+        message: 'Update is available to download from GitHub',
       });
       if (response) {
         shell.openExternal(
@@ -129,8 +129,8 @@ const connectAutoUpdater = () => {
       type: 'info',
       buttons: ['Restart', 'Later'],
       title: 'Application Update',
-      detail:
-        'A new version has been downloaded.\nRestart the application to apply the updates.',
+      message: 'A new version has been downloaded',
+      detail: 'Restart the application to apply the updates',
     });
     if (response === 0) {
       autoUpdater.quitAndInstall();
@@ -417,19 +417,19 @@ const cleanupDuplicates = history => {
 };
 
 const cleanupBig = (history, { threshold }) => {
-  threshold = parseInt(threshold);
-  if (!threshold) {
+  // +1 to match the wording "remove bigger than N"
+  threshold = parseInt(threshold) + 1;
+  if (!threshold || threshold < 0 || isNaN(threshold)) {
     dialog.showMessageBox({
       type: 'warning',
       buttons: ['Close'],
       title: 'cp-clip',
-      detail: `Invalid threshold, skipping.`,
+      message: 'Invalid threshold',
+      detail: 'Skipping big entries cleanup',
     });
     return history;
   }
-  return history.filter(item => {
-    return item.value.length < threshold;
-  });
+  return history.filter(item => item.value.length < threshold);
 };
 
 const cleanupPeriod = (history, parameters) => {
@@ -447,7 +447,8 @@ const cleanupPeriod = (history, parameters) => {
       type: 'warning',
       buttons: ['Close'],
       title: 'cp-clip',
-      detail: `Invalid period, skipping.`,
+      message: 'Invalid period',
+      detail: 'Skipping period cleanup',
     });
     return history;
   }
@@ -492,7 +493,7 @@ const handleCleanup = async parameters => {
       type: 'info',
       buttons: ['Close'],
       title: 'cp-clip',
-      detail: `Nothing to cleanup.`,
+      message: 'Nothing to cleanup',
     });
     cleanupWindow.close();
     return;
@@ -668,8 +669,8 @@ Merge will automatically remove all duplicates (entries with the same value and 
                   dialog.showMessageBox(null, {
                     type: 'info',
                     title: 'Success',
-                    message: `Successfully restored the backup.\n
-Your new history has ${clipboardHistory.length} entries.`,
+                    message: 'Successfully restored the backup',
+                    detail: `Your new history has ${clipboardHistory.length} entries`,
                   });
                 }
               } catch (e) {
@@ -705,7 +706,8 @@ Your new history has ${clipboardHistory.length} entries.`,
             type: 'info',
             buttons: ['Close'],
             title: 'cp-clip',
-            detail: `There are currently no updates available.\nYour version ${app.getVersion()} is the latest one.`,
+            message: 'There are currently no updates available',
+            detail: `Your version ${app.getVersion()} is the latest one.`,
           });
         }
       },

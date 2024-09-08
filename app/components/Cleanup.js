@@ -11,6 +11,7 @@ type IState = {
 };
 
 const selectOptions = ['minutes', 'hours', 'days', 'weeks', 'months', 'years'];
+const defaultThreshold = 10000;
 
 export default class Cleanup extends Component<IProps, IState> {
   constructor(props) {
@@ -24,7 +25,7 @@ export default class Cleanup extends Component<IProps, IState> {
       checkboxDuplicates: false,
       checkboxBig: false,
       loading: false,
-      threshold: 10000,
+      threshold: defaultThreshold,
     };
     this.client = new Client();
   }
@@ -77,6 +78,7 @@ export default class Cleanup extends Component<IProps, IState> {
   renderThresholdInput() {
     return (
       <input
+        className="w-100"
         type='number'
         min={0}
         value={this.state.threshold}
@@ -132,10 +134,10 @@ export default class Cleanup extends Component<IProps, IState> {
           <div className="flex-1">
             {this.renderCheckbox('checkboxBig', 'Cleanup big entries')}
             <p>
-              Big entries (over 10000 characters) slow down search the most.
+              Big entries (over {defaultThreshold} characters) slow down search the most.
             </p>
-            <p>Remove entries bigger then:</p>
-            <div>{this.renderThresholdInput()}</div>
+            <p className="mt-4">Remove entries bigger then:</p>
+            <div className="w-100">{this.renderThresholdInput()}</div>
           </div>
 
           <div className="flex-1">
