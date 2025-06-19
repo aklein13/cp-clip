@@ -1,7 +1,7 @@
 {
   "name": "cp-clip",
   "productName": "cp-clip",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "cp-clip",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
@@ -143,6 +143,7 @@
     "npm-logical-tree": "^1.2.1",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "rimraf": "^2.7.1",
+    "sanitize-filename": "^1.6.3",
     "sass-loader": "^7.3.1",
     "style-loader": "^0.20.1",
     "terser-webpack-plugin": "^2.3.2",
