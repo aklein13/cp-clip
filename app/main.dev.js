@@ -849,6 +849,10 @@ const removeProfile = profile => {
   profiles = profiles.filter(({ name }) => name !== profile);
   profilesConfig.set('profiles', profiles);
   createTray();
+  const configToRemove = new Config({ name: sanitize(profile) });
+  try {
+    fs.unlinkSync(configToRemove.path);
+  } catch (e) {}
 };
 
 const createProfile = ({ name }) => {
