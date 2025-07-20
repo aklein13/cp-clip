@@ -846,6 +846,7 @@ const switchProfile = newProfile => {
   selectedProfile = newProfile;
   profilesConfig.set('selected_profile', selectedProfile);
   loadCurrentProfileConfig();
+  closeWindow();
   createTray();
 };
 
