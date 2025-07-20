@@ -25,6 +25,7 @@ export default class NewProfile extends Component<IProps, IState> {
         autoFocus
         className="w-100"
         value={this.state.name}
+        required
         onChange={e => this.handleFormChange(e, 'name')}
       />
     );
@@ -38,14 +39,14 @@ export default class NewProfile extends Component<IProps, IState> {
     const { name } = this.state;
 
     return (
-      <div id="new-profile">
+      <form id="new-profile" onSubmit={this.handleSubmit}>
         <h1 className="m-0 mb-3">Create a new profile</h1>
         <p className="mt-4 mb-3">Profile name:</p>
         <div className="w-100">{this.renderNameInput()}</div>
-        <button onClick={this.handleSubmit} disabled={!name} className="mt-3">
+        <button disabled={!name} className="mt-3" type="submit">
           Create
         </button>
-      </div>
+      </form>
     );
   }
 }
