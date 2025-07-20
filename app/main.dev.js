@@ -739,7 +739,7 @@ Merge will automatically remove all duplicates (entries with the same value and 
                   if (checkboxChecked) {
                     clipboardHistory = validHistory;
                   } else {
-                    clipboardHistory.push(...validHistory);
+                    clipboardHistory = [...clipboardHistory, ...validHistory];
                     sortHistory();
                   }
                   cleanupHistory();
