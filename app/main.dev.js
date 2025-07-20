@@ -574,7 +574,9 @@ const sortHistory = () => {
 
 const createBackup = async () => {
   const now = moment();
-  const defaultPath = `cp-clip_${now.format('YYYY-MM-DDTHH-mm-ss')}.json`;
+  const defaultPath = sanitize(
+    `cp-clip_${selectedProfile}_${now.format('YYYY-MM-DDTHH-mm-ss')}.json`
+  );
   const { filePath } = await dialog.showSaveDialog(null, {
     title: 'Create backup',
     defaultPath,
@@ -726,6 +728,7 @@ const createTray = () => {
                   checkboxLabel: 'Override entire history',
                   detail: `Loaded the backup with ${validHistory.length} entries.\n
 Your current history has ${clipboardHistory.length} entries.\n
+Keep in mind that backup/restore only works on entries from currently selected profile.\n
 Please confirm the load and choose if you want to override the current history.
 If you do not want to override, your current history will get merged with the backup.\n
 Merge will automatically remove all duplicates (entries with the same value and date).
