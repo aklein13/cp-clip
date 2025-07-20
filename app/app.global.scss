@@ -84,6 +84,10 @@ body {
   margin: 0;
 }
 
+.p3 {
+  padding: 12px;
+}
+
 // History window
 #history-container {
   position: absolute;
@@ -306,4 +310,9 @@ body {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+
+#new-profile {
+  padding: 12px;
 }

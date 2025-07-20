@@ -30,6 +30,7 @@ const profilesConfig = new Config({ name: 'profiles' });
 
 let clipboardWindow = null;
 let cleanupWindow = null;
+let newProfileWindow = null;
 
 let tray = null;
 let googleTimeout = null;
@@ -160,11 +161,35 @@ const initCleanupWindow = () => {
   cleanupWindow.setMenu(null);
 };
 
+const initNewProfileWindow = () => {
+  newProfileWindow = new BrowserWindow({
+    show: false,
+    width: 400,
+    height: 170,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    title: 'Create profile',
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  newProfileWindow.loadURL(`file://${__dirname}/app.html#/new-profile`);
+  newProfileWindow.setMenu(null);
+};
+
 const openCleanupWindow = () => {
   cleanupWindow.show();
   cleanupWindow.focus();
   cleanupWindow.on('closed', initCleanupWindow);
   // cleanupWindow.openDevTools();
+};
+
+const openNewProfileWindow = () => {
+  newProfileWindow.show();
+  newProfileWindow.focus();
+  newProfileWindow.on('closed', initNewProfileWindow);
+  // newProfileWindow.openDevTools();
 };
 
 if (!isDebug) {
@@ -582,6 +607,9 @@ const createTray = () => {
       submenu: [
         {
           label: 'Create',
+          click() {
+            openNewProfileWindow();
+          },
         },
         {
           label: 'Remove',
@@ -797,10 +825,7 @@ Merge will automatically remove all duplicates (entries with the same value and 
 
 const readProfiles = () => {
   profiles = profilesConfig.get('profiles') || [];
-  console.log(profilesConfig);
-  console.log(profilesConfig.path);
   if (!profiles.length) {
-    console.log('migrate');
     config = new Config();
     profiles.push({ name: 'Default' });
     const migrationConfig = new Config({ name: sanitize(profiles[0].name) });
@@ -808,8 +833,6 @@ const readProfiles = () => {
     keysToMigrate.forEach(key => migrationConfig.set(key, config.get(key)));
     profilesConfig.set('profiles', profiles);
     profilesConfig.set('selected_profile', profiles[0].name);
-  } else {
-    console.log('existing');
   }
   selectedProfile = profilesConfig.get('selected_profile');
 };
@@ -826,6 +849,20 @@ const removeProfile = profile => {
   profiles = profiles.filter(({ name }) => name !== profile);
   profilesConfig.set('profiles', profiles);
   createTray();
+};
+
+const createProfile = ({ name }) => {
+  name = name.trim();
+  if (profiles.find(profile => profile.name === name)) {
+    return dialog.showErrorBox(
+      'Profile exists',
+      `Profile with name ${name} already exists.`
+    );
+  }
+  profiles.push({ name: name });
+  profilesConfig.set('profiles', profiles);
+  newProfileWindow.close();
+  switchProfile(name);
 };
 
 const loadCurrentProfileConfig = () => {
@@ -913,7 +950,9 @@ app.on('ready', async () => {
   server.on('delete_value', event => deleteFromHistory(event.body));
   server.on('value_for_macro', event => registerMacro(event.body));
   server.on('cleanup', event => handleCleanup(event.body));
+  server.on('new_profile', event => createProfile(event.body));
   initCleanupWindow();
+  initNewProfileWindow();
   if (isDebug && isMac) {
     app.dock.hide();
   }
