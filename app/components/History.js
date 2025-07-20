@@ -23,6 +23,7 @@ export default class History extends Component<IProps, IState> {
       history: [],
       activeIndex: 0,
       search: '',
+      selectedProfile: '',
     };
     this.history = [];
     this.inputDebounce = null;
@@ -87,6 +88,9 @@ export default class History extends Component<IProps, IState> {
       this.client.request('value_from_history', valueFromHistory);
       this.changeSearch();
     });
+    this.client.on('selected_profile', (error, body) =>
+      this.setState({ selectedProfile: body })
+    );
   }
 
   resetFocusAndScroll = () => {
@@ -194,10 +198,16 @@ export default class History extends Component<IProps, IState> {
 
   handleInput = e => this.changeSearch(e.target.value);
 
+  renderSelectedProfile = () => {
+    const { selectedProfile } = this.state;
+    return <div id="selected-profile">Profile: {selectedProfile}</div>;
+  };
+
   render() {
     const { search } = this.state;
     return (
       <div id="history-container" onClick={this.focusSearch}>
+        {this.renderSelectedProfile()}
         <input
           id="search-input"
           value={search}

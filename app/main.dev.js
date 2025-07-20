@@ -212,6 +212,7 @@ const sendHistory = () => {
     historySentAlready = true;
     newClipboardHistory = null;
   }
+  server.send('selected_profile', selectedProfile);
 };
 
 const openWindow = () => {

@@ -112,6 +112,7 @@ body {
     outline: none;
     caret-color: $textLight;
     color: $text;
+    z-index: 1;
 
     &::placeholder {
       color: $textLight;
@@ -312,7 +313,14 @@ body {
   }
 }
 
-
 #new-profile {
   padding: 12px;
+}
+
+#selected-profile {
+  position: absolute;
+  top: 14px;
+  right: 8px;
+  font-size: 11px;
+  color: $textLight;
 }
