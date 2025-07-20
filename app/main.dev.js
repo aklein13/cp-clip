@@ -875,7 +875,12 @@ const createProfile = ({ name }) => {
 const loadCurrentProfileConfig = () => {
   config = new Config({ name: sanitize(selectedProfile) });
   macros = config.get('macros') || {};
-  macrosEnabled = config.get('macrosEnabled', true);
+  const newMacrosEnabled = config.get('macrosEnabled', true);
+  if (macrosEnabled !== newMacrosEnabled) {
+    macrosEnabled = newMacrosEnabled;
+    globalShortcut.unregisterAll();
+    registerInitShortcuts();
+  }
   clipboardHistory = config.get('clipboardHistory') || [];
   cleanupHistory();
 };
